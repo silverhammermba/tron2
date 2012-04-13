@@ -30,7 +30,7 @@ int main(int argc, char *argv[])
 	sf::Event event;
 
 	Cycle player (sf::Vector2f(50.f, 100.f), 0.f, sf::Color(255, 0, 0));
-	Cycle player2 (sf::Vector2f(750.f, 300.f), 180.f, sf::Color(0, 255, 0));
+	Cycle player2 (sf::Vector2f(400.f, 300.f), 180.f, sf::Color(0, 255, 0));
 	player2.set_speed(200.f);
 	sf::Clock t;
 
@@ -49,6 +49,24 @@ int main(int argc, char *argv[])
 				window.setView(view);
 				fps.setPosition(view.getCenter() - view.getSize() / 2.f);
 			}
+		}
+
+		// TODO real controls
+		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right))
+		{
+			player.turn(0.f);
+		}
+		else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Down))
+		{
+			player.turn(90.f);
+		}
+		else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left))
+		{
+			player.turn(180.f);
+		}
+		else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up))
+		{
+			player.turn(270.f);
 		}
 
 		float time = clock.getElapsedTime().asSeconds();
@@ -74,7 +92,6 @@ int main(int argc, char *argv[])
 		if (testt > 1.5f)
 		{
 			t.restart();
-			player.turn(90.f);
 			player2.set_decay(200.f);
 		}
 
