@@ -29,7 +29,9 @@ int main(int argc, char *argv[])
 
 	sf::Event event;
 
-	Cycle player (sf::Vector2f(50.f, 300.f), 0.f, sf::Color(255, 0, 0));
+	Cycle player (sf::Vector2f(50.f, 100.f), 0.f, sf::Color(255, 0, 0));
+	Cycle player2 (sf::Vector2f(750.f, 300.f), 180.f, sf::Color(0, 255, 0));
+	player2.set_speed(200.f);
 	sf::Clock t;
 
 	while (window.isOpen())
@@ -52,14 +54,32 @@ int main(int argc, char *argv[])
 		float time = clock.getElapsedTime().asSeconds();
 		clock.restart();
 
+		switch(rand() % 4)
+		{
+			case 0:
+				player2.turn(0.f);
+				break;
+			case 1:
+				player2.turn(90.f);
+				break;
+			case 2:
+				player2.turn(180.f);
+				break;
+			case 3:
+				player2.turn(270.f);
+				break;
+		}
+
 		float testt = t.getElapsedTime().asSeconds();
 		if (testt > 1.5f)
 		{
 			t.restart();
 			player.turn(90.f);
+			player2.set_decay(200.f);
 		}
 
 		player.move(time);
+		player2.move(time);
 
 		fps_s.str("");
 		fps_s << "FPS " << int (1.f / time);
@@ -68,6 +88,7 @@ int main(int argc, char *argv[])
 		window.clear(sf::Color(30, 30, 30));
 
 		player.draw(window);
+		player2.draw(window);
 
 		window.draw(fps);
 

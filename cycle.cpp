@@ -9,7 +9,8 @@ Cycle::Cycle(const sf::Vector2f & pos, const float dir, const sf::Color & clr) :
 	speed = Cycle::SPEED;
 	decay = Cycle::DECAY;
 	trail.push_front(new sf::RectangleShape(sf::Vector2f(Cycle::WIDTH, Cycle::WIDTH)));
-	trail.front()->setPosition(100.f, 200.f);
+	trail.front()->setPosition(pos);
+	trail.front()->setRotation(dir);
 	trail.front()->setOrigin(Cycle::WIDTH / 2.f, Cycle::WIDTH / 2.f);
 	trail.front()->setFillColor(color);
 }
@@ -34,18 +35,25 @@ void Cycle::move(float time)
 	if (shorten_trail(time)) trail.pop_back();
 }
 
+// turn to the direction dir (absolute)
 void Cycle::turn(float dir)
 {
 	float org = trail.front()->getRotation();
-	float rad = org * M_PI / 180.f;
-	sf::Vector2f shift (sf::Vector2f(cos(rad), sin(rad)) * (trail.front()->getSize().x - Cycle::WIDTH));
-	sf::Vector2f pos (trail.front()->getPosition() + shift);
+	// TODO smarter way to do this?
+	if (trail.front()->getSize().x > 2 * Cycle::WIDTH &&
+	   (((org ==  0.f || org == 180.f) && (dir == 90.f || dir == 270.f)) ||
+	    ((org == 90.f || org == 270.f) && (dir ==  0.f || dir == 180.f))))
+	{
+		float rad = org * M_PI / 180.f;
+		sf::Vector2f shift (sf::Vector2f(cos(rad), sin(rad)) * (trail.front()->getSize().x - Cycle::WIDTH));
+		sf::Vector2f pos (trail.front()->getPosition() + shift);
 
-	trail.push_front(new sf::RectangleShape(sf::Vector2f(Cycle::WIDTH, Cycle::WIDTH)));
-	trail.front()->setOrigin(Cycle::WIDTH / 2.f, Cycle::WIDTH / 2.f);
-	trail.front()->setPosition(pos);
-	trail.front()->rotate(org + dir);
-	trail.front()->setFillColor(color);
+		trail.push_front(new sf::RectangleShape(sf::Vector2f(Cycle::WIDTH, Cycle::WIDTH)));
+		trail.front()->setOrigin(Cycle::WIDTH / 2.f, Cycle::WIDTH / 2.f);
+		trail.front()->setPosition(pos);
+		trail.front()->setRotation(dir);
+		trail.front()->setFillColor(color);
+	}
 }
 
 void Cycle::draw(sf::RenderWindow & window) const
