@@ -1,6 +1,10 @@
 #include <iostream>
 #include <sstream>
+#include <cmath>
 #include <SFML/Graphics.hpp>
+#include "cycle.hpp"
+
+#define _USE_MATH_DEFINES
 
 using std::cerr;
 using std::endl;
@@ -25,6 +29,9 @@ int main(int argc, char *argv[])
 
 	sf::Event event;
 
+	Cycle player (sf::Vector2f(50.f, 300.f), 0.f, sf::Color(255, 0, 0));
+	sf::Clock t;
+
 	while (window.isOpen())
 	{
 		while (window.pollEvent(event))
@@ -45,11 +52,22 @@ int main(int argc, char *argv[])
 		float time = clock.getElapsedTime().asSeconds();
 		clock.restart();
 
+		float testt = t.getElapsedTime().asSeconds();
+		if (testt > 1.5f)
+		{
+			t.restart();
+			player.turn(90.f);
+		}
+
+		player.move(time);
+
 		fps_s.str("");
 		fps_s << "FPS " << int (1.f / time);
 		fps.setString(fps_s.str());
 
 		window.clear(sf::Color(30, 30, 30));
+
+		player.draw(window);
 
 		window.draw(fps);
 
