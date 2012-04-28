@@ -29,10 +29,11 @@ int main(int argc, char *argv[])
 
 	sf::Event event;
 
-	Cycle player (sf::Vector2f(50.f, 100.f), 0.f, sf::Color(255, 0, 0));
-	Cycle player2 (sf::Vector2f(400.f, 300.f), 180.f, sf::Color(0, 255, 0));
-	player2.set_speed(200.f);
-	sf::Clock t;
+	Cycle *player;
+	Cycle *player2;
+
+	player = new Cycle(sf::Vector2f(800.f, 300.f), 180.f, sf::Color(255, 0, 0));
+	player2 = new Cycle(sf::Vector2f(0.f, 300.f), 0.f, sf::Color(0, 255, 0));
 
 	while (window.isOpen())
 	{
@@ -49,54 +50,57 @@ int main(int argc, char *argv[])
 				window.setView(view);
 				fps.setPosition(view.getCenter() - view.getSize() / 2.f);
 			}
+			else if ((event.type == sf::Event::KeyPressed) && (event.key.code == sf::Keyboard::R))
+			{
+				delete player;
+				delete player2;
+				player = new Cycle(sf::Vector2f(800.f, 300.f), 180.f, sf::Color(255, 0, 0));
+				player2 = new Cycle(sf::Vector2f(0.f, 300.f), 0.f, sf::Color(0, 255, 0));
+			}
 		}
 
 		// TODO real controls
 		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right))
 		{
-			player.turn(0.f);
+			player->turn(0.f);
 		}
 		else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Down))
 		{
-			player.turn(90.f);
+			player->turn(90.f);
 		}
 		else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left))
 		{
-			player.turn(180.f);
+			player->turn(180.f);
 		}
 		else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up))
 		{
-			player.turn(270.f);
+			player->turn(270.f);
+		}
+
+		if (sf::Keyboard::isKeyPressed(sf::Keyboard::D))
+		{
+			player2->turn(0.f);
+		}
+		else if (sf::Keyboard::isKeyPressed(sf::Keyboard::S))
+		{
+			player2->turn(90.f);
+		}
+		else if (sf::Keyboard::isKeyPressed(sf::Keyboard::A))
+		{
+			player2->turn(180.f);
+		}
+		else if (sf::Keyboard::isKeyPressed(sf::Keyboard::W))
+		{
+			player2->turn(270.f);
 		}
 
 		float time = clock.getElapsedTime().asSeconds();
 		clock.restart();
 
-		switch(rand() % 4)
-		{
-			case 0:
-				player2.turn(0.f);
-				break;
-			case 1:
-				player2.turn(90.f);
-				break;
-			case 2:
-				player2.turn(180.f);
-				break;
-			case 3:
-				player2.turn(270.f);
-				break;
-		}
-
-		float testt = t.getElapsedTime().asSeconds();
-		if (testt > 1.5f)
-		{
-			t.restart();
-			player2.set_decay(200.f);
-		}
-
-		player.move(time);
-		player2.move(time);
+		player->move(time);
+		player2->move(time);
+		player->check_collision(*player2);
+		player2->check_collision(*player);
 
 		fps_s.str("");
 		fps_s << "FPS " << int (1.f / time);
@@ -104,8 +108,8 @@ int main(int argc, char *argv[])
 
 		window.clear(sf::Color(30, 30, 30));
 
-		player.draw(window);
-		player2.draw(window);
+		player->draw(window);
+		player2->draw(window);
 
 		window.draw(fps);
 
