@@ -29,11 +29,11 @@ int main(int argc, char *argv[])
 
 	sf::Event event;
 
-	Cycle *player;
+	Cycle *player1;
 	Cycle *player2;
 
-	player = new Cycle(sf::Vector2f(800.f, 300.f), 180.f, sf::Color(255, 0, 0));
-	player2 = new Cycle(sf::Vector2f(0.f, 300.f), 0.f, sf::Color(0, 255, 0));
+	player1 = new Cycle(sf::Vector2f(400.f, 0.f), 90.f, sf::Color(255, 0, 0));
+	player2 = new Cycle(sf::Vector2f(100.f, 300.f), 0.f, sf::Color(0, 255, 0));
 
 	while (window.isOpen())
 	{
@@ -52,29 +52,29 @@ int main(int argc, char *argv[])
 			}
 			else if ((event.type == sf::Event::KeyPressed) && (event.key.code == sf::Keyboard::R))
 			{
-				delete player;
+				delete player1;
 				delete player2;
-				player = new Cycle(sf::Vector2f(800.f, 300.f), 180.f, sf::Color(255, 0, 0));
-				player2 = new Cycle(sf::Vector2f(0.f, 300.f), 0.f, sf::Color(0, 255, 0));
+				player1 = new Cycle(sf::Vector2f(400.f, 0.f), 90.f, sf::Color(255, 0, 0));
+				player2 = new Cycle(sf::Vector2f(100.f, 300.f), 0.f, sf::Color(0, 255, 0));
 			}
 		}
 
 		// TODO real controls
 		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right))
 		{
-			player->turn(0.f);
+			player1->turn(0.f);
 		}
 		else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Down))
 		{
-			player->turn(90.f);
+			player1->turn(90.f);
 		}
 		else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left))
 		{
-			player->turn(180.f);
+			player1->turn(180.f);
 		}
 		else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up))
 		{
-			player->turn(270.f);
+			player1->turn(270.f);
 		}
 
 		if (sf::Keyboard::isKeyPressed(sf::Keyboard::D))
@@ -97,10 +97,15 @@ int main(int argc, char *argv[])
 		float time = clock.getElapsedTime().asSeconds();
 		clock.restart();
 
-		player->move(time);
+		player1->move(time);
 		player2->move(time);
-		player->check_collision(*player2);
-		player2->check_collision(*player);
+		player1->check_collision(*player2);
+		player2->check_collision(*player1);
+
+		if (player1->crashed)
+			player2->crashed = true;
+		if (player2->crashed)
+			player1->crashed = true;
 
 		fps_s.str("");
 		fps_s << "FPS " << int (1.f / time);
@@ -108,7 +113,7 @@ int main(int argc, char *argv[])
 
 		window.clear(sf::Color(30, 30, 30));
 
-		player->draw(window);
+		player1->draw(window);
 		player2->draw(window);
 
 		window.draw(fps);

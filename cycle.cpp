@@ -1,4 +1,10 @@
 #include "cycle.hpp"
+#include "helpers.hpp"
+
+// TODO
+#include <iostream>
+using std::cerr;
+using std::endl;
 
 const float Cycle::WIDTH = 10.f;
 const float Cycle::SPEED = 250.f;
@@ -19,6 +25,7 @@ Cycle::Cycle(const sf::Vector2f & pos, const float dir, const sf::Color & clr) :
 	edge.setOrigin(0.5f, Cycle::WIDTH / 2.f);
 	edge.setFillColor(sf::Color(255.f, 255.f, 255.f));
 	set_edge_pos();
+	edge.setRotation(dir);
 }
 
 Cycle::~Cycle()
@@ -47,9 +54,11 @@ void Cycle::set_edge_pos()
 // returns true if the last tail segment needs to be removed
 bool Cycle::shorten_trail(float time)
 {
-	if (trail.back()->getSize().x > Cycle::WIDTH)
+	// TODO refactor
+	float delta = trail.back()->getSize().x - Cycle::WIDTH;
+	float rad = trail.back()->getRotation() * M_PI / 180.f;
+	if (delta > 0)
 	{
-		float rad = trail.back()->getRotation() * M_PI / 180.f;
 		trail.back()->move(cos(rad) * decay * time, sin(rad) * decay * time);
 		trail.back()->setSize(trail.back()->getSize() - sf::Vector2f(decay * time, 0.f));
 	}
@@ -77,9 +86,7 @@ void Cycle::turn(float dir)
 	{
 		float org = trail.front()->getRotation();
 		// TODO smarter way to do this?
-		if (trail.front()->getSize().x > 2 * Cycle::WIDTH &&
-		   (((org ==  0.f || org == 180.f) && (dir == 90.f || dir == 270.f)) ||
-			((org == 90.f || org == 270.f) && (dir ==  0.f || dir == 180.f))))
+		if (trail.front()->getSize().x > 2 * Cycle::WIDTH && perpendicular(org, dir))
 		{
 			float rad = org * M_PI / 180.f;
 			sf::Vector2f shift (sf::Vector2f(cos(rad), sin(rad)) * (trail.front()->getSize().x - Cycle::WIDTH));
@@ -97,7 +104,47 @@ void Cycle::turn(float dir)
 
 bool Cycle::check_collision(Cycle & cycle)
 {
+	if (crashed) return false;
 	sf::FloatRect head = edge.getGlobalBounds();
+	sf::FloatRect other = cycle.get_edge().getGlobalBounds();
+	// edge case: perpendicular head-on collision
+	if (head.intersects(other))
+	{
+		float dir = trail.front()->getRotation();
+		float oth = cycle.get_trail().front()->getRotation();
+		if (perpendicular(dir, oth))
+		{
+			// swap so that head/dir is horizontal
+			if (dir == 90.f || dir == 270.f)
+			{
+				sf::FloatRect temp {head};
+				head = other;
+				other = temp;
+				float tmp {dir};
+				dir = oth;
+				oth = tmp;
+			}
+			float prg1, prg2;
+
+			if (dir == 0.f) // 1 right
+				prg1 = head.left - other.left;
+			else // 1 left
+				prg1 = other.width - head.left + other.left;
+
+			if (oth == 90.f) // 2 down
+				prg2 = other.top - head.top;
+			else // 2 up
+				prg2 = head.height - other.top + head.top;
+
+			if (prg1 <= prg2)
+			{
+				cerr << this << " crashed in edge case\n";
+				crash(prg1);
+				if (prg1 < prg2) cycle.crashed = false; // TODO HACKY!! DOESN'T EVEN WORK
+				return true;
+			}
+		}
+	}
 	for (auto segment : cycle.get_trail())
 	{
 		if (head.intersects(segment->getGlobalBounds()))
@@ -109,8 +156,11 @@ bool Cycle::check_collision(Cycle & cycle)
 	return false;
 }
 
-void Cycle::crash()
+void Cycle::crash(float dist)
 {
+
+	trail.front()->setSize(trail.front()->getSize() - sf::Vector2f(dist + 2.f, 0));
+	set_edge_pos();
 	crashed = true;
 }
 
