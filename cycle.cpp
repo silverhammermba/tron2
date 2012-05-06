@@ -114,34 +114,36 @@ bool Cycle::check_collision(Cycle & cycle)
 		float oth = cycle.get_trail().front()->getRotation();
 		if (perpendicular(dir, oth))
 		{
-			// swap so that head/dir is horizontal
-			if (dir == 90.f || dir == 270.f)
-			{
-				sf::FloatRect temp {head};
-				head = other;
-				other = temp;
-				float tmp {dir};
-				dir = oth;
-				oth = tmp;
-			}
 			float prg1, prg2;
-
+			
 			if (dir == 0.f) // 1 right
 				prg1 = head.left - other.left;
-			else // 1 left
+			else if (dir == 90.f) // 1 down
+				prg1 = head.top - other.top;
+			else if (dir == 180.f) // 1 left
 				prg1 = other.width - head.left + other.left;
+			else // 1 up
+				prg1 = other.height - head.top + other.top;
 
-			if (oth == 90.f) // 2 down
+			if (oth == 0.f) // 2 right
+				prg2 = other.left - head.left;
+			else if (oth == 90.f) // 2 down
 				prg2 = other.top - head.top;
+			else if (oth == 180.f) // 2 left
+				prg2 = head.width - other.left + head.left;
 			else // 2 up
 				prg2 = head.height - other.top + head.top;
 
 			if (prg1 <= prg2)
 			{
-				cerr << this << " crashed in edge case\n";
+				//cerr << this << " crashed in edge case\n";
 				crash(prg1);
-				if (prg1 < prg2) cycle.crashed = false; // TODO HACKY!! DOESN'T EVEN WORK
 				return true;
+			}
+			else
+			{
+				//cerr << this << " survived edge case (" << prg1 << " > " << prg2 << ")\n";
+				return false;
 			}
 		}
 	}
@@ -149,7 +151,9 @@ bool Cycle::check_collision(Cycle & cycle)
 	{
 		if (head.intersects(segment->getGlobalBounds()))
 		{
+			// TODO figure out how far to move back
 			crash();
+			//cerr << this << " crashed in normal case\n";
 			return true;
 		}
 	}
@@ -158,8 +162,8 @@ bool Cycle::check_collision(Cycle & cycle)
 
 void Cycle::crash(float dist)
 {
-
-	trail.front()->setSize(trail.front()->getSize() - sf::Vector2f(dist + 2.f, 0));
+	// back up to point of collision
+	trail.front()->setSize(trail.front()->getSize() - sf::Vector2f(dist + 1.f, 0));
 	set_edge_pos();
 	crashed = true;
 }

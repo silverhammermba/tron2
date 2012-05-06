@@ -32,8 +32,8 @@ int main(int argc, char *argv[])
 	Cycle *player1;
 	Cycle *player2;
 
-	player1 = new Cycle(sf::Vector2f(400.f, 0.f), 90.f, sf::Color(255, 0, 0));
-	player2 = new Cycle(sf::Vector2f(100.f, 300.f), 0.f, sf::Color(0, 255, 0));
+	player1 = new Cycle(sf::Vector2f(800.f, 300.f), 180.f, sf::Color(255, 0, 0));
+	player2 = new Cycle(sf::Vector2f(0.f, 300.f), 0.f, sf::Color(0, 255, 0));
 
 	while (window.isOpen())
 	{
@@ -54,8 +54,8 @@ int main(int argc, char *argv[])
 			{
 				delete player1;
 				delete player2;
-				player1 = new Cycle(sf::Vector2f(400.f, 0.f), 90.f, sf::Color(255, 0, 0));
-				player2 = new Cycle(sf::Vector2f(100.f, 300.f), 0.f, sf::Color(0, 255, 0));
+				player1 = new Cycle(sf::Vector2f(800.f, 300.f), 180.f, sf::Color(255, 0, 0));
+				player2 = new Cycle(sf::Vector2f(0.f, 300.f), 0.f, sf::Color(0, 255, 0));
 			}
 		}
 
@@ -102,10 +102,10 @@ int main(int argc, char *argv[])
 		player1->check_collision(*player2);
 		player2->check_collision(*player1);
 
-		if (player1->crashed)
+		/*if (player1->crashed)
 			player2->crashed = true;
 		if (player2->crashed)
-			player1->crashed = true;
+			player1->crashed = true;*/
 
 		fps_s.str("");
 		fps_s << "FPS " << int (1.f / time);
