@@ -28,6 +28,7 @@ public:
 	void move(float);
 	void turn(float);
 	bool check_collision(Cycle & cycle);
+	bool in(const sf::RectangleShape &);
 	void crash(float dist = 0.f);
 	void draw(sf::RenderWindow &) const;
 };

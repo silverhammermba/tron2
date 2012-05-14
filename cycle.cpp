@@ -160,6 +160,19 @@ bool Cycle::check_collision(Cycle & cycle)
 	return false;
 }
 
+bool Cycle::in(const sf::RectangleShape & bounds)
+{
+	if (edge.getGlobalBounds().intersects(bounds.getGlobalBounds()))
+	{
+		return true;
+	}
+	else
+	{
+		crash();
+		return false;
+	}
+}
+
 void Cycle::crash(float dist)
 {
 	// back up to point of collision
