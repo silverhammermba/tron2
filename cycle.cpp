@@ -1,7 +1,8 @@
+#include <Joystick.hpp>
 #include "cycle.hpp"
 #include "helpers.hpp"
 
-// TODO
+// TODO debugging
 #include <iostream>
 using std::cerr;
 using std::endl;
@@ -85,7 +86,7 @@ void Cycle::turn(float dir)
 	if (!crashed)
 	{
 		float org = trail.front()->getRotation();
-		// TODO smarter way to do this?
+		// TODO smarter way to do this? also, only restrict turns for 180s
 		if (trail.front()->getSize().x > 2 * Cycle::WIDTH && perpendicular(org, dir))
 		{
 			float rad = org * M_PI / 180.f;
