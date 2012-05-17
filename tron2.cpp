@@ -7,11 +7,14 @@
 
 #define _USE_MATH_DEFINES
 
+using std::cin;
 using std::cerr;
 using std::endl;
 
 int main(int argc, char *argv[])
 {
+	int PLAYERS = atoi(argv[1]);
+
 	sf::Clock clock;
 
 	sf::Text fps;
@@ -40,15 +43,16 @@ int main(int argc, char *argv[])
 	bounds.setPosition(5.f, 5.f);
 	bounds.setFillColor(sf::Color(30, 30, 30));
 
-	Cycle *player1;
-	Cycle *player2;
-	Cycle *player3;
-	Cycle *player4;
+	Cycle *player[PLAYERS];
 
-	player1 = new Cycle(sf::Vector2f(695.f, 300.f), 180.f, sf::Color(255, 0, 0));
-	player2 = new Cycle(sf::Vector2f(105.f, 300.f), 0.f, sf::Color(0, 255, 0));
-	player3 = new Cycle(sf::Vector2f(400.f, 5.f), 90.f, sf::Color(0, 0, 255));
-	player4 = new Cycle(sf::Vector2f(400.f, 595.f), 270.f, sf::Color(255, 0, 255));
+	player[0] = new Cycle(sf::Vector2f(695.f, 300.f), 180.f, sf::Color(255, 0, 0));
+	player[1] = new Cycle(sf::Vector2f(105.f, 300.f), 0.f, sf::Color(0, 255, 0));
+	if (PLAYERS > 2)
+	{
+		player[2] = new Cycle(sf::Vector2f(400.f, 5.f), 90.f, sf::Color(0, 0, 255));
+		if (PLAYERS > 3)
+			player[3] = new Cycle(sf::Vector2f(400.f, 595.f), 270.f, sf::Color(255, 0, 255));
+	}
 
 	while (window.isOpen())
 	{
@@ -69,109 +73,76 @@ int main(int argc, char *argv[])
 			}
 			else if ((event.type == sf::Event::KeyPressed) && (event.key.code == sf::Keyboard::R))
 			{
-				delete player1;
-				delete player2;
-				delete player3;
-				delete player4;
-				player1 = new Cycle(sf::Vector2f(695.f, 300.f), 180.f, sf::Color(255, 0, 0));
-				player2 = new Cycle(sf::Vector2f(105.f, 300.f), 0.f, sf::Color(0, 255, 0));
-				player3 = new Cycle(sf::Vector2f(400.f, 5.f), 90.f, sf::Color(0, 0, 255));
-				player4 = new Cycle(sf::Vector2f(400.f, 595.f), 270.f, sf::Color(255, 0, 255));
+				for (int i = 0; i < PLAYERS; i++)
+					delete player[i];
+				player[0] = new Cycle(sf::Vector2f(695.f, 300.f), 180.f, sf::Color(255, 0, 0));
+				player[1] = new Cycle(sf::Vector2f(105.f, 300.f), 0.f, sf::Color(0, 255, 0));
+				if (PLAYERS > 2)
+				{
+					player[2] = new Cycle(sf::Vector2f(400.f, 5.f), 90.f, sf::Color(0, 0, 255));
+					if (PLAYERS > 3)
+						player[3] = new Cycle(sf::Vector2f(400.f, 595.f), 270.f, sf::Color(255, 0, 255));
+				}
 				paused = false;
 			}
 		}
 
 		// TODO real controls
-		if (sf::Joystick::isButtonPressed(0, 0))
+		for (int i = 0; i < PLAYERS && i < 3; i++)
 		{
-			player1->turn(90.f);
+			if (sf::Joystick::isButtonPressed(i, 0))
+			{
+				player[i]->turn(90.f);
+			}
+			else if (sf::Joystick::isButtonPressed(i, 1))
+			{
+				player[i]->turn(0.f);
+			}
+			else if (sf::Joystick::isButtonPressed(i, 2))
+			{
+				player[i]->turn(180.f);
+			}
+			else if (sf::Joystick::isButtonPressed(i, 3))
+			{
+				player[i]->turn(270.f);
+			}
 		}
-		else if (sf::Joystick::isButtonPressed(0, 1))
+		if (PLAYERS > 3)
 		{
-			player1->turn(0.f);
-		}
-		else if (sf::Joystick::isButtonPressed(0, 2))
-		{
-			player1->turn(180.f);
-		}
-		else if (sf::Joystick::isButtonPressed(0, 3))
-		{
-			player1->turn(270.f);
-		}
-		if (sf::Keyboard::isKeyPressed(sf::Keyboard::D))
-		{
-			player2->turn(0.f);
-		}
-		else if (sf::Keyboard::isKeyPressed(sf::Keyboard::S))
-		{
-			player2->turn(90.f);
-		}
-		else if (sf::Keyboard::isKeyPressed(sf::Keyboard::A))
-		{
-			player2->turn(180.f);
-		}
-		else if (sf::Keyboard::isKeyPressed(sf::Keyboard::W))
-		{
-			player2->turn(270.f);
-		}
-		if (sf::Joystick::isButtonPressed(1, 0))
-		{
-			player3->turn(90.f);
-		}
-		else if (sf::Joystick::isButtonPressed(1, 1))
-		{
-			player3->turn(0.f);
-		}
-		else if (sf::Joystick::isButtonPressed(1, 2))
-		{
-			player3->turn(180.f);
-		}
-		else if (sf::Joystick::isButtonPressed(1, 3))
-		{
-			player3->turn(270.f);
-		}
-		if (sf::Joystick::isButtonPressed(2, 0))
-		{
-			player4->turn(90.f);
-		}
-		else if (sf::Joystick::isButtonPressed(2, 1))
-		{
-			player4->turn(0.f);
-		}
-		else if (sf::Joystick::isButtonPressed(2, 2))
-		{
-			player4->turn(180.f);
-		}
-		else if (sf::Joystick::isButtonPressed(2, 3))
-		{
-			player4->turn(270.f);
+			if (sf::Keyboard::isKeyPressed(sf::Keyboard::D))
+			{
+				player[3]->turn(0.f);
+			}
+			else if (sf::Keyboard::isKeyPressed(sf::Keyboard::S))
+			{
+				player[3]->turn(90.f);
+			}
+			else if (sf::Keyboard::isKeyPressed(sf::Keyboard::A))
+			{
+				player[3]->turn(180.f);
+			}
+			else if (sf::Keyboard::isKeyPressed(sf::Keyboard::W))
+			{
+				player[3]->turn(270.f);
+			}
 		}
 
 		float time = clock.getElapsedTime().asSeconds();
 		clock.restart();
 
 		// TODO oh my...
-		player1->move(time);
-		player2->move(time);
-		player3->move(time);
-		player4->move(time);
-		player1->check_collision(*player2);
-		player1->check_collision(*player3);
-		player1->check_collision(*player4);
-		player2->check_collision(*player1);
-		player2->check_collision(*player3);
-		player2->check_collision(*player4);
-		player3->check_collision(*player1);
-		player3->check_collision(*player2);
-		player3->check_collision(*player4);
-		player4->check_collision(*player1);
-		player4->check_collision(*player2);
-		player4->check_collision(*player3);
-
-		player1->in(bounds);
-		player2->in(bounds);
-		player3->in(bounds);
-		player4->in(bounds);
+		for (int i = 0; i < PLAYERS; i++)
+			player[i]->move(time);
+		for (int i = 0; i < PLAYERS; i++)
+		{
+			for (int j = 0; j < PLAYERS; j++)
+			{
+				if (player[i] != player[j])
+					player[i]->check_collision(*player[j]);
+			}
+		}
+		for (int i = 0; i < PLAYERS; i++)
+			player[i]->in(bounds);
 
 		// TODO generalize
 		if (!paused)
@@ -179,10 +150,8 @@ int main(int argc, char *argv[])
 			win_s.str("");
 
 			int living = 0;
-			if (!player1->crashed) living++;
-			if (!player2->crashed) living++;
-			if (!player3->crashed) living++;
-			if (!player4->crashed) living++;
+			for (int i = 0; i < PLAYERS; i++)
+				if (!player[i]->crashed) living++;
 
 			if (living == 0)
 			{
@@ -192,25 +161,14 @@ int main(int argc, char *argv[])
 			}
 			else if (living == 1)
 			{
-				if (!player1->crashed)
+				for (int i = 0; i < PLAYERS; i++)
 				{
-					winner.setColor(player1->color);
-					player1->crashed = true;
-				}
-				if (!player2->crashed)
-				{
-					winner.setColor(player2->color);
-					player2->crashed = true;
-				}
-				if (!player3->crashed)
-				{
-					winner.setColor(player3->color);
-					player3->crashed = true;
-				}
-				if (!player4->crashed)
-				{
-					winner.setColor(player4->color);
-					player4->crashed = true;
+					if (!player[i]->crashed)
+					{
+						winner.setColor(player[i]->color);
+						player[i]->crashed = true;
+						break;
+					}
 				}
 				win_s << "WINNER!";
 				paused = true;
@@ -229,10 +187,8 @@ int main(int argc, char *argv[])
 
 		window.draw(bounds);
 
-		player1->draw(window);
-		player2->draw(window);
-		player3->draw(window);
-		player4->draw(window);
+		for (int i = 0; i < PLAYERS; i++)
+			player[i]->draw(window);
 
 		window.draw(fps);
 		window.draw(winner);
