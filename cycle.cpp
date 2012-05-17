@@ -1,4 +1,3 @@
-#include <Joystick.hpp>
 #include "cycle.hpp"
 #include "helpers.hpp"
 
@@ -55,7 +54,7 @@ void Cycle::set_edge_pos()
 // returns true if the last tail segment needs to be removed
 bool Cycle::shorten_trail(float time)
 {
-	// TODO refactor
+	// TODO refactor, fix tails getting too short (when paused)
 	float delta = trail.back()->getSize().x - Cycle::WIDTH;
 	float rad = trail.back()->getRotation() * M_PI / 180.f;
 	if (delta > 0)
@@ -177,7 +176,8 @@ bool Cycle::in(const sf::RectangleShape & bounds)
 void Cycle::crash(float dist)
 {
 	// back up to point of collision
-	trail.front()->setSize(trail.front()->getSize() - sf::Vector2f(dist + 1.f, 0));
+	// TODO adjust wiggle distance?
+	trail.front()->setSize(trail.front()->getSize() - sf::Vector2f(dist, 0));
 	set_edge_pos();
 	crashed = true;
 }

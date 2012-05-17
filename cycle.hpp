@@ -8,11 +8,11 @@ class Cycle
 {
 	float speed;
 	float decay;
-	sf::Color color;
 	std::deque<sf::RectangleShape *> trail;
 	sf::RectangleShape edge;
 	void set_edge_pos();
 public:
+	sf::Color color; // TODO
 	bool crashed;
 	static const float WIDTH;
 	static const float SPEED;
