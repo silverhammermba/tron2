@@ -65,9 +65,11 @@ int main(int argc, char *argv[])
 				window.close();
 			else if (event.type == sf::Event::Resized)
 			{
+				/*
 				view.setSize((sf::Vector2f)window.getSize());
 				window.setView(view);
 				fps.setPosition(view.getCenter() - view.getSize() / 2.f);
+				*/
 				// TODO center
 				winner.setPosition(view.getCenter());
 			}
