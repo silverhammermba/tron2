@@ -1,3 +1,4 @@
+#include <SFML/Graphics.hpp>
 #include "cycle.hpp"
 #include "helpers.hpp"
 
@@ -10,13 +11,13 @@ const float Cycle::WIDTH = 10.f;
 const float Cycle::SPEED = 250.f;
 const float Cycle::DECAY = Cycle::Cycle::SPEED / 2.f;
 
-Cycle::Cycle(const sf::Vector2f & pos, const float dir, const sf::Color & clr) :
-	color(clr), edge(sf::Vector2f(1.f, Cycle::WIDTH))
+Cycle::Cycle(const v2f & pos, const float dir, const sf::Color & clr) :
+	color(clr), edge(v2f(1.f, Cycle::WIDTH))
 {
 	crashed = false;
 	speed = Cycle::SPEED;
 	decay = Cycle::DECAY;
-	trail.push_front(new sf::RectangleShape(sf::Vector2f(Cycle::WIDTH, Cycle::WIDTH)));
+	trail.push_front(new sf::RectangleShape(v2f(Cycle::WIDTH, Cycle::WIDTH)));
 	trail.front()->setPosition(pos);
 	trail.front()->setRotation(dir);
 	trail.front()->setOrigin(Cycle::WIDTH / 2.f, Cycle::WIDTH / 2.f);
@@ -35,7 +36,7 @@ Cycle::~Cycle()
 
 bool Cycle::move_forward(float time)
 {
-	trail.front()->setSize(trail.front()->getSize() + sf::Vector2f(speed * time, 0));
+	trail.front()->setSize(trail.front()->getSize() + v2f(speed * time, 0));
 	set_edge_pos();
 	sf::FloatRect head = edge.getGlobalBounds();
 	for (int i = 3; i < trail.size(); i++)
@@ -48,7 +49,7 @@ bool Cycle::move_forward(float time)
 void Cycle::set_edge_pos()
 {
 	float dir = trail.front()->getRotation() * M_PI / 180.f;
-	edge.setPosition(trail.front()->getPosition() + sf::Vector2f(std::cos(dir) , std::sin(dir)) * (trail.front()->getSize().x - Cycle::WIDTH / 2.f));
+	edge.setPosition(trail.front()->getPosition() + v2f(std::cos(dir) , std::sin(dir)) * (trail.front()->getSize().x - Cycle::WIDTH / 2.f));
 }
 
 // returns true if the last tail segment needs to be removed
@@ -60,7 +61,7 @@ bool Cycle::shorten_trail(float time)
 	if (delta > 0)
 	{
 		trail.back()->move(cos(rad) * decay * time, sin(rad) * decay * time);
-		trail.back()->setSize(trail.back()->getSize() - sf::Vector2f(decay * time, 0.f));
+		trail.back()->setSize(trail.back()->getSize() - v2f(decay * time, 0.f));
 	}
 	return trail.back()->getSize().x <= Cycle::WIDTH;
 }
@@ -89,10 +90,10 @@ void Cycle::turn(float dir)
 		if (trail.front()->getSize().x > 2 * Cycle::WIDTH && perpendicular(org, dir))
 		{
 			float rad = org * M_PI / 180.f;
-			sf::Vector2f shift (sf::Vector2f(cos(rad), sin(rad)) * (trail.front()->getSize().x - Cycle::WIDTH));
-			sf::Vector2f pos (trail.front()->getPosition() + shift);
+			v2f shift (v2f(cos(rad), sin(rad)) * (trail.front()->getSize().x - Cycle::WIDTH));
+			v2f pos (trail.front()->getPosition() + shift);
 
-			trail.push_front(new sf::RectangleShape(sf::Vector2f(Cycle::WIDTH, Cycle::WIDTH)));
+			trail.push_front(new sf::RectangleShape(v2f(Cycle::WIDTH, Cycle::WIDTH)));
 			trail.front()->setOrigin(Cycle::WIDTH / 2.f, Cycle::WIDTH / 2.f);
 			trail.front()->setPosition(pos);
 			trail.front()->setRotation(dir);
@@ -177,7 +178,7 @@ void Cycle::crash(float dist)
 {
 	// back up to point of collision
 	// TODO adjust wiggle distance?
-	trail.front()->setSize(trail.front()->getSize() - sf::Vector2f(dist, 0));
+	trail.front()->setSize(trail.front()->getSize() - v2f(dist, 0));
 	set_edge_pos();
 	crashed = true;
 }

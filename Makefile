@@ -1,7 +1,7 @@
 all: tron2
 
 tron2: tron2.o cycle.o helpers.o
-	g++ -o launch tron2.o cycle.o helpers.o -lsfml-graphics -lsfml-window -lsfml-system
+	g++ -o launch tron2.o cycle.o helpers.o -lsfml-graphics -lsfml-window -lsfml-audio -lsfml-system
 
 tron2.o: tron2.cpp
 	g++ -c tron2.cpp -std=c++11
