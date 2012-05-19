@@ -104,7 +104,7 @@ void Cycle::turn(float dir)
 
 bool Cycle::check_collision(Cycle & cycle)
 {
-	if (crashed) return false;
+	if (crashed || &cycle == this) return false;
 	sf::FloatRect head = edge.getGlobalBounds();
 	sf::FloatRect other = cycle.get_edge().getGlobalBounds();
 	// edge case: perpendicular head-on collision

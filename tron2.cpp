@@ -58,10 +58,8 @@ int main(int argc, char *argv[])
 	{
 		while (window.pollEvent(event))
 		{
-			if (
-				event.type == sf::Event::Closed ||
-				((event.type == sf::Event::KeyReleased) && (event.key.code == sf::Keyboard::Escape))
-				)
+			if (event.type == sf::Event::Closed ||
+			  ((event.type == sf::Event::KeyReleased) && (event.key.code == sf::Keyboard::Escape)))
 				window.close();
 			else if (event.type == sf::Event::Resized)
 			{
@@ -163,15 +161,14 @@ int main(int argc, char *argv[])
 		float time = clock.getElapsedTime().asSeconds();
 		clock.restart();
 
-		// TODO oh my...
 		for (int i = 0; i < PLAYERS; i++)
 			player[i]->move(time);
 		for (int i = 0; i < PLAYERS; i++)
 		{
-			for (int j = 0; j < PLAYERS; j++)
+			for (int j = i; j < PLAYERS; j++)
 			{
-				if (player[i] != player[j])
-					player[i]->check_collision(*player[j]);
+				player[i]->check_collision(*player[j]);
+				player[j]->check_collision(*player[i]);
 			}
 		}
 		for (int i = 0; i < PLAYERS; i++)
