@@ -65,6 +65,18 @@ int main(int argc, char *argv[])
 				window.close();
 			else if (event.type == sf::Event::Resized)
 			{
+				sf::Vector2u size = window.getSize();
+				float prop = float (size.x) / size.y;
+				if (size.x * 3 < size.y * 4)
+				{
+					view.setSize(sf::Vector2f(800, (800.f * size.y) / size.x));
+					window.setView(view);
+				}
+				else if (size.x * 3 > size.y * 4)
+				{
+					view.setSize(sf::Vector2f((600.f * size.x) / size.y, 600.f));
+					window.setView(view);
+				}
 				/*
 				view.setSize((sf::Vector2f)window.getSize());
 				window.setView(view);
