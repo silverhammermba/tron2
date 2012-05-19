@@ -33,7 +33,7 @@ int main(int argc, char *argv[])
 		"Light Cycles",
 		sf::Style::Titlebar
 	};
-	window.setVerticalSyncEnabled(true);
+	//window.setVerticalSyncEnabled(true);
 
 	sf::View view (window.getView());
 
@@ -102,7 +102,7 @@ int main(int argc, char *argv[])
 		}
 
 		// TODO real controls
-		for (int i = 0; i < PLAYERS && i < 3; i++)
+		for (int i = 0; i < PLAYERS && i < 2; i++)
 		{
 			if (sf::Joystick::isButtonPressed(i, 0))
 			{
@@ -119,6 +119,25 @@ int main(int argc, char *argv[])
 			else if (sf::Joystick::isButtonPressed(i, 3))
 			{
 				player[i]->turn(270.f);
+			}
+		}
+		if (PLAYERS > 2)
+		{
+			if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right))
+			{
+				player[2]->turn(0.f);
+			}
+			else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Down))
+			{
+				player[2]->turn(90.f);
+			}
+			else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left))
+			{
+				player[2]->turn(180.f);
+			}
+			else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up))
+			{
+				player[2]->turn(270.f);
 			}
 		}
 		if (PLAYERS > 3)
