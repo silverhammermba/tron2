@@ -18,6 +18,7 @@ public:
 	static const float WIDTH;
 	static const float SPEED;
 	static const float DECAY;
+
 	Cycle(const v2f & pos, const float dir, const sf::Color & clr);
 	~Cycle();
 	const std::deque<sf::RectangleShape *> & get_trail() const { return trail; }
