@@ -116,12 +116,13 @@ int main(int argc, char *argv[])
 	track[5] = &synl;
 	track[8] = &pian;
 
+	bool menu = true;
+
 	while (window.isOpen())
 	{
 		while (window.pollEvent(event))
 		{
-			if (event.type == sf::Event::Closed ||
-			  ((event.type == sf::Event::KeyReleased) && (event.key.code == sf::Keyboard::Escape)))
+			if (event.type == sf::Event::Closed)
 				window.close();
 			else if (event.type == sf::Event::Resized)
 			{
@@ -139,118 +140,146 @@ int main(int argc, char *argv[])
 				}
 				winner.setPosition(view.getCenter());
 			}
-			else if ((event.type == sf::Event::KeyPressed) && (event.key.code == sf::Keyboard::R))
+			if (menu)
 			{
-				player.clear();
-				player.push_back(new Cycle(v2f(695.f, 300.f), 180.f, sf::Color(255, 0, 0)));
-				player.push_back(new Cycle(v2f(105.f, 300.f), 0.f, sf::Color(0, 255, 0)));
-				if (PLAYERS > 2)
-				{
-					player.push_back(new Cycle(v2f(400.f, 5.f), 90.f, sf::Color(0, 0, 255)));
-					if (PLAYERS > 3)
-						player.push_back(new Cycle(v2f(400.f, 595.f), 270.f, sf::Color(255, 0, 255)));
-				}
-				paused = false;
-				pian.setVolume(0.f);
-				elgt.setVolume(0.f);
-				psyn.setVolume(0.f);
-				rhds.setVolume(0.f);
-				synl.setVolume(0.f);
-				synp.setVolume(0.f);
+				if (event.type == sf::Event::KeyReleased && event.key.code == sf::Keyboard::Escape)
+					window.close();
+				else if (event.type == sf::Event::KeyReleased && event.key.code == sf::Keyboard::Back)
+					player.pop_back();
+				else if (event.type == sf::Event::KeyReleased && event.key.code == sf::Keyboard::Space)
+					menu = false;
 			}
 			else
 			{
-				for (auto p : player)
-					p->bind(event);
+				if (event.type == sf::Event::KeyReleased && event.key.code == sf::Keyboard::Escape)
+				{
+					menu = true;
+					for (auto p : player)
+						p->reset();
+
+					paused = false;
+					pian.setVolume(0.f);
+					elgt.setVolume(0.f);
+					psyn.setVolume(0.f);
+					rhds.setVolume(0.f);
+					synl.setVolume(0.f);
+					synp.setVolume(0.f);
+				}
+				else if ((event.type == sf::Event::KeyPressed) && (event.key.code == sf::Keyboard::R))
+				{
+					for (auto p : player)
+						p->reset();
+
+					paused = false;
+					pian.setVolume(0.f);
+					elgt.setVolume(0.f);
+					psyn.setVolume(0.f);
+					rhds.setVolume(0.f);
+					synl.setVolume(0.f);
+					synp.setVolume(0.f);
+				}
+				else
+				{
+					for (auto p : player)
+						p->bind(event);
+				}
 			}
 		}
 
 		float time = clock.getElapsedTime().asSeconds();
 		clock.restart();
 
-		for (auto p : player)
-			p->move(time);
-		// TODO better way?
-		for (auto p1 : player)
+		if (menu)
 		{
-			for (auto p2 : player)
-			{
-				if (p1 != p2)
-				{
-					p1->check_collision(*p2);
-					p2->check_collision(*p1);
-				}
-			}
 		}
-		for (auto p : player)
-			p->in(bounds);
-
-		/* adjust track volume */
-		// TODO better way?
-		int i = 0;
-		int j;
-		for (auto p1 : player)
+		else
 		{
-			j = 0;
-			for (auto p2 : player)
+			for (auto p : player)
+				p->move(time);
+			// TODO better way?
+			for (auto p1 : player)
 			{
-				if (p1 != p2)
+				for (auto p2 : player)
 				{
-					float vol = 100.f - clamp<float>(0.f, v2dist<float>(p1->get_edge().getPosition(), p2->get_edge().getPosition()), 300.f) / 3.f;
-					track[3 * i + j - 1]->setVolume(vol);
-					if (!paused)
-					cerr << "Vol " << i << "," << j << "=" << vol << endl;
-				}
-				j++;
-			}
-			i++;
-		}
-
-		// TODO generalize
-		if (!paused)
-		{
-			win_s.str("");
-
-			int living = 0;
-			for(auto p : player)
-				if (!p->crashed) living++;
-
-			if (living == 0)
-			{
-				win_s << "DRAW";
-				winner.setColor(sf::Color(255, 255, 255));
-				paused = true;
-			}
-			else if (living == 1)
-			{
-				for (auto p : player)
-				{
-					if (!p->crashed)
+					if (p1 != p2)
 					{
-						winner.setColor(p->color);
-						//p->crashed = true;
-						break;
+						p1->check_collision(*p2);
+						p2->check_collision(*p1);
 					}
 				}
-				win_s << "WINNER!";
-				paused = true;
 			}
+			for (auto p : player)
+				p->in(bounds);
+
+			/* adjust track volume */
+			// TODO better way? need to allocate music better
 			/*
-			if (paused)
+			int i = 0;
+			int j;
+			for (auto p1 : player)
 			{
-				pian.setVolume(100.f);
-				elgt.setVolume(100.f);
-				psyn.setVolume(100.f);
-				rhds.setVolume(100.f);
-				synl.setVolume(100.f);
-				synp.setVolume(100.f);
+				j = 0;
+				for (auto p2 : player)
+				{
+					if (p1 != p2)
+					{
+						float vol = 100.f - clamp<float>(0.f, v2dist<float>(p1->get_edge().getPosition(), p2->get_edge().getPosition()), 300.f) / 3.f;
+						track[3 * i + j - 1]->setVolume(vol);
+						if (!paused)
+						cerr << "Vol " << i << "," << j << "=" << vol << endl;
+					}
+					j++;
+				}
+				i++;
 			}
 			*/
-			winner.setString(win_s.str());
-		}
 
-		sf::FloatRect size = winner.getGlobalBounds();
-		winner.setOrigin(size.width / 2, size.height / 2);
+			// TODO generalize
+			if (!paused)
+			{
+				win_s.str("");
+
+				int living = 0;
+				for(auto p : player)
+					if (!p->crashed) living++;
+
+				if (living == 0)
+				{
+					win_s << "DRAW";
+					winner.setColor(sf::Color(255, 255, 255));
+					paused = true;
+				}
+				else if (living == 1)
+				{
+					for (auto p : player)
+					{
+						if (!p->crashed)
+						{
+							winner.setColor(p->color);
+							//p->crashed = true;
+							break;
+						}
+					}
+					win_s << "WINNER!";
+					paused = true;
+				}
+				/*
+				if (paused)
+				{
+					pian.setVolume(100.f);
+					elgt.setVolume(100.f);
+					psyn.setVolume(100.f);
+					rhds.setVolume(100.f);
+					synl.setVolume(100.f);
+					synp.setVolume(100.f);
+				}
+				*/
+				winner.setString(win_s.str());
+			}
+
+			sf::FloatRect size = winner.getGlobalBounds();
+			winner.setOrigin(size.width / 2, size.height / 2);
+		}
 
 		fps_s.str("");
 		fps_s << "FPS " << int (1.f / time);

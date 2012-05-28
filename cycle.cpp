@@ -12,21 +12,15 @@ const float Cycle::SPEED = 250.f;
 const float Cycle::DECAY = Cycle::Cycle::SPEED / 2.f;
 
 Cycle::Cycle(const v2f & pos, const float dir, const sf::Color & clr) :
-	color(clr), edge(v2f(1.f, Cycle::WIDTH))
+	start(pos), color(clr), edge(v2f(1.f, Cycle::WIDTH))
 {
-	crashed = false;
-	speed = Cycle::SPEED;
-	decay = Cycle::DECAY;
-	trail.push_front(new sf::RectangleShape(v2f(Cycle::WIDTH, Cycle::WIDTH)));
-	trail.front()->setPosition(pos);
-	trail.front()->setRotation(dir);
-	trail.front()->setOrigin(Cycle::WIDTH / 2.f, Cycle::WIDTH / 2.f);
-	trail.front()->setFillColor(color);
+	startd = dir;
 
 	edge.setOrigin(0.5f, Cycle::WIDTH / 2.f);
 	edge.setFillColor(sf::Color(255.f, 255.f, 255.f));
-	set_edge_pos();
-	edge.setRotation(dir);
+
+	reset();
+
 }
 
 Cycle::~Cycle()
@@ -93,12 +87,7 @@ void Cycle::turn(float dir)
 			v2f shift (v2f(cos(rad), sin(rad)) * (trail.front()->getSize().x - Cycle::WIDTH));
 			v2f pos (trail.front()->getPosition() + shift);
 
-			trail.push_front(new sf::RectangleShape(v2f(Cycle::WIDTH, Cycle::WIDTH)));
-			trail.front()->setOrigin(Cycle::WIDTH / 2.f, Cycle::WIDTH / 2.f);
-			trail.front()->setPosition(pos);
-			trail.front()->setRotation(dir);
-			trail.front()->setFillColor(color);
-			edge.setRotation(dir);
+			new_segment(pos, dir);
 		}
 	}
 }
@@ -209,4 +198,25 @@ void Cycle::bind(const sf::Event & event)
 				this->turn(270.f);
 		}
 	}
+}
+
+void Cycle::reset()
+{
+	crashed = false;
+	speed = Cycle::SPEED;
+	decay = Cycle::DECAY;
+	trail.clear();
+	new_segment(start, startd);
+}
+
+// add a new segment to the front of the snake
+void Cycle::new_segment(const v2f & pos, float dir)
+{
+	trail.push_front(new sf::RectangleShape(v2f(Cycle::WIDTH, Cycle::WIDTH)));
+	trail.front()->setPosition(pos);
+	trail.front()->setRotation(dir);
+	trail.front()->setOrigin(Cycle::WIDTH / 2.f, Cycle::WIDTH / 2.f);
+	trail.front()->setFillColor(color);
+
+	edge.setRotation(dir);
 }
