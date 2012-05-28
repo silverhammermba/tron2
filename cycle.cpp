@@ -188,3 +188,25 @@ void Cycle::draw(sf::RenderWindow & window) const
 	for (auto rect : trail) window.draw(*rect);
 	window.draw(edge);
 }
+
+void Cycle::bind(const sf::Event & event)
+{
+	// TODO
+	if (event.type == sf::Event::KeyPressed)
+	{
+		switch (event.key.code)
+		{
+			case sf::Keyboard::D:
+				this->turn(0.f);
+				break;
+			case sf::Keyboard::S:
+				this->turn(90.f);
+				break;
+			case sf::Keyboard::A:
+				this->turn(180.f);
+				break;
+			case sf::Keyboard::W:
+				this->turn(270.f);
+		}
+	}
+}

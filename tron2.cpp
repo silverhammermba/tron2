@@ -1,4 +1,5 @@
 #include <iostream>
+#include <list>
 #include <sstream>
 #include <cmath>
 #include <SFML/Graphics.hpp>
@@ -51,17 +52,18 @@ int main(int argc, char *argv[])
 	bounds.setPosition(5.f, 5.f);
 	bounds.setFillColor(sf::Color(30, 30, 30));
 
-	Cycle *player[PLAYERS];
+	std::list<Cycle *> player;
 
-	player[0] = new Cycle(v2f(695.f, 300.f), 180.f, sf::Color(255, 0, 0));
-	player[1] = new Cycle(v2f(105.f, 300.f), 0.f, sf::Color(0, 255, 0));
+	player.push_back(new Cycle(v2f(695.f, 300.f), 180.f, sf::Color(255, 0, 0)));
+	player.push_back(new Cycle(v2f(105.f, 300.f), 0.f, sf::Color(0, 255, 0)));
 	if (PLAYERS > 2)
 	{
-		player[2] = new Cycle(v2f(400.f, 5.f), 90.f, sf::Color(0, 0, 255));
+		player.push_back(new Cycle(v2f(400.f, 5.f), 90.f, sf::Color(0, 0, 255)));
 		if (PLAYERS > 3)
-			player[3] = new Cycle(v2f(400.f, 595.f), 270.f, sf::Color(255, 0, 255));
+			player.push_back(new Cycle(v2f(400.f, 595.f), 270.f, sf::Color(255, 0, 255)));
 	}
 
+	// (shitty) MUSIC!!!
 	sf::Music bass;
 	sf::Music pian;
 	sf::Music elgt;
@@ -139,15 +141,14 @@ int main(int argc, char *argv[])
 			}
 			else if ((event.type == sf::Event::KeyPressed) && (event.key.code == sf::Keyboard::R))
 			{
-				for (int i = 0; i < PLAYERS; i++)
-					delete player[i];
-				player[0] = new Cycle(v2f(695.f, 300.f), 180.f, sf::Color(255, 0, 0));
-				player[1] = new Cycle(v2f(105.f, 300.f), 0.f, sf::Color(0, 255, 0));
+				player.clear();
+				player.push_back(new Cycle(v2f(695.f, 300.f), 180.f, sf::Color(255, 0, 0)));
+				player.push_back(new Cycle(v2f(105.f, 300.f), 0.f, sf::Color(0, 255, 0)));
 				if (PLAYERS > 2)
 				{
-					player[2] = new Cycle(v2f(400.f, 5.f), 90.f, sf::Color(0, 0, 255));
+					player.push_back(new Cycle(v2f(400.f, 5.f), 90.f, sf::Color(0, 0, 255)));
 					if (PLAYERS > 3)
-						player[3] = new Cycle(v2f(400.f, 595.f), 270.f, sf::Color(255, 0, 255));
+						player.push_back(new Cycle(v2f(400.f, 595.f), 270.f, sf::Color(255, 0, 255)));
 				}
 				paused = false;
 				pian.setVolume(0.f);
@@ -157,74 +158,52 @@ int main(int argc, char *argv[])
 				synl.setVolume(0.f);
 				synp.setVolume(0.f);
 			}
-		}
-
-		// TODO real controls
-		for (int i = 0; i < PLAYERS && i < 3; i++)
-		{
-			if (sf::Joystick::isButtonPressed(i, 0))
+			else
 			{
-				player[i]->turn(90.f);
-			}
-			else if (sf::Joystick::isButtonPressed(i, 1))
-			{
-				player[i]->turn(0.f);
-			}
-			else if (sf::Joystick::isButtonPressed(i, 2))
-			{
-				player[i]->turn(180.f);
-			}
-			else if (sf::Joystick::isButtonPressed(i, 3))
-			{
-				player[i]->turn(270.f);
-			}
-		}
-		if (PLAYERS > 3)
-		{
-			if (sf::Keyboard::isKeyPressed(sf::Keyboard::D))
-			{
-				player[3]->turn(0.f);
-			}
-			else if (sf::Keyboard::isKeyPressed(sf::Keyboard::S))
-			{
-				player[3]->turn(90.f);
-			}
-			else if (sf::Keyboard::isKeyPressed(sf::Keyboard::A))
-			{
-				player[3]->turn(180.f);
-			}
-			else if (sf::Keyboard::isKeyPressed(sf::Keyboard::W))
-			{
-				player[3]->turn(270.f);
+				for (auto p : player)
+					p->bind(event);
 			}
 		}
 
 		float time = clock.getElapsedTime().asSeconds();
 		clock.restart();
 
-		for (int i = 0; i < PLAYERS; i++)
-			player[i]->move(time);
-		for (int i = 0; i < PLAYERS; i++)
+		for (auto p : player)
+			p->move(time);
+		// TODO better way?
+		for (auto p1 : player)
 		{
-			for (int j = i; j < PLAYERS; j++)
+			for (auto p2 : player)
 			{
-				player[i]->check_collision(*player[j]);
-				player[j]->check_collision(*player[i]);
+				if (p1 != p2)
+				{
+					p1->check_collision(*p2);
+					p2->check_collision(*p1);
+				}
 			}
 		}
-		for (int i = 0; i < PLAYERS; i++)
-			player[i]->in(bounds);
+		for (auto p : player)
+			p->in(bounds);
 
 		/* adjust track volume */
-		for (int i = 0; i < PLAYERS - 1; i++)
+		// TODO better way?
+		int i = 0;
+		int j;
+		for (auto p1 : player)
 		{
-			for (int j = i + 1; j < PLAYERS; j++)
+			j = 0;
+			for (auto p2 : player)
 			{
-				float vol = 100.f - clamp<float>(0.f, v2dist<float>(player[i]->get_edge().getPosition(), player[j]->get_edge().getPosition()), 300.f) / 3.f;
-				track[3 * i + j - 1]->setVolume(vol);
-				if (!paused)
-				cerr << "Vol " << i << "," << j << "=" << vol << endl;
+				if (p1 != p2)
+				{
+					float vol = 100.f - clamp<float>(0.f, v2dist<float>(p1->get_edge().getPosition(), p2->get_edge().getPosition()), 300.f) / 3.f;
+					track[3 * i + j - 1]->setVolume(vol);
+					if (!paused)
+					cerr << "Vol " << i << "," << j << "=" << vol << endl;
+				}
+				j++;
 			}
+			i++;
 		}
 
 		// TODO generalize
@@ -233,8 +212,8 @@ int main(int argc, char *argv[])
 			win_s.str("");
 
 			int living = 0;
-			for (int i = 0; i < PLAYERS; i++)
-				if (!player[i]->crashed) living++;
+			for(auto p : player)
+				if (!p->crashed) living++;
 
 			if (living == 0)
 			{
@@ -244,12 +223,12 @@ int main(int argc, char *argv[])
 			}
 			else if (living == 1)
 			{
-				for (int i = 0; i < PLAYERS; i++)
+				for (auto p : player)
 				{
-					if (!player[i]->crashed)
+					if (!p->crashed)
 					{
-						winner.setColor(player[i]->color);
-						//player[i]->crashed = true;
+						winner.setColor(p->color);
+						//p->crashed = true;
 						break;
 					}
 				}
@@ -290,8 +269,8 @@ int main(int argc, char *argv[])
 
 		window.draw(bounds);
 
-		for (int i = 0; i < PLAYERS; i++)
-			player[i]->draw(window);
+		for (auto p : player)
+			p->draw(window);
 
 		window.draw(fps);
 		window.draw(vol);

@@ -33,6 +33,7 @@ public:
 	bool in(const sf::RectangleShape &);
 	void crash(float dist = 0.f);
 	void draw(sf::RenderWindow &) const;
+	void bind(const sf::Event & event);
 };
 
 #endif

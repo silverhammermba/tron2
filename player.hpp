@@ -2,7 +2,7 @@
 #define PLAYER_H_
 
 #include <SFML/Graphics.hpp>
-#include "cycle.hpp";
+#include "cycle.hpp"
 
 class Player
 {
