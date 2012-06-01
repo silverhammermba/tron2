@@ -1,4 +1,5 @@
 #include <iostream>
+#include <array>
 #include <list>
 #include <sstream>
 #include <cmath>
@@ -16,7 +17,7 @@ using std::endl;
 
 int main(int argc, char *argv[])
 {
-	int PLAYERS = atoi(argv[1]);
+	//int PLAYERS = atoi(argv[1]);
 
 	sf::Clock clock;
 
@@ -54,6 +55,31 @@ int main(int argc, char *argv[])
 
 	std::list<Cycle *> player;
 
+	std::array<v2f, 4> starts
+	{
+		v2f(105.f, 300.f),
+		v2f(695.f, 300.f),
+		v2f(400.f, 5.f),
+		v2f(400.f, 595.f)
+	};
+
+	std::array<float, 4> startds
+	{
+		0.f,
+		180.f,
+		90.f,
+		270.f
+	};
+
+	std::array<sf::Color, 4> colors
+	{
+		sf::Color(255, 0, 0),
+		sf::Color(0, 255, 0),
+		sf::Color(0, 0, 255),
+		sf::Color(255, 0, 255)
+	};
+
+	/*
 	player.push_back(new Cycle(v2f(695.f, 300.f), 180.f, sf::Color(255, 0, 0)));
 	player.push_back(new Cycle(v2f(105.f, 300.f), 0.f, sf::Color(0, 255, 0)));
 	if (PLAYERS > 2)
@@ -62,6 +88,7 @@ int main(int argc, char *argv[])
 		if (PLAYERS > 3)
 			player.push_back(new Cycle(v2f(400.f, 595.f), 270.f, sf::Color(255, 0, 255)));
 	}
+	*/
 
 	// (shitty) MUSIC!!!
 	sf::Music bass;
@@ -144,6 +171,51 @@ int main(int argc, char *argv[])
 			{
 				if (event.type == sf::Event::KeyReleased && event.key.code == sf::Keyboard::Escape)
 					window.close();
+				else if (event.type == sf::Event::KeyReleased && event.key.code == sf::Keyboard::Return)
+				{
+					if (player.size() < 4)
+					{
+						sf::Color c;
+						for (auto col : colors)
+						{
+							bool taken = false;
+							for (auto p : player)
+							{
+								if (p->color == col)
+								{
+									taken = true;
+									break;
+								}
+							}
+							if (!taken)
+							{
+								c = col;
+								break;
+							}
+						}
+						v2f s;
+						int i = 0;
+						for (auto strt : starts)
+						{
+							bool taken = false;
+							for (auto p : player)
+							{
+								if (p->start == strt)
+								{
+									taken = true;
+									break;
+								}
+							}
+							if (!taken)
+							{
+								s = strt;
+								break;
+							}
+							i++;
+						}
+						player.push_back(new Cycle(s, startds[i], c));
+					}
+				}
 				else if (event.type == sf::Event::KeyReleased && event.key.code == sf::Keyboard::Back)
 					player.pop_back();
 				else if (event.type == sf::Event::KeyReleased && event.key.code == sf::Keyboard::Space)
@@ -191,6 +263,7 @@ int main(int argc, char *argv[])
 
 		if (menu)
 		{
+				winner.setString("MENU");
 		}
 		else
 		{

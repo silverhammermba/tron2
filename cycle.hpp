@@ -7,8 +7,6 @@
 
 class Cycle
 {
-	v2f start;
-	float startd;
 	float speed;
 	float decay;
 	std::deque<sf::RectangleShape *> trail;
@@ -16,6 +14,8 @@ class Cycle
 	void set_edge_pos();
 	void new_segment(const v2f & pos, float dir);
 public:
+	v2f start;
+	float startd;
 	sf::Color color; // TODO
 	bool crashed;
 	static const float WIDTH;
