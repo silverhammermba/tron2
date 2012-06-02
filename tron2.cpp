@@ -116,7 +116,7 @@ int main(int argc, char *argv[])
 	synl.setLoop(true);
 	synp.setLoop(true);
 
-	bass.setVolume(100.f);
+	bass.setVolume(0.f);
 	pian.setVolume(0.f);
 	elgt.setVolume(0.f);
 	psyn.setVolume(0.f);
@@ -173,8 +173,10 @@ int main(int argc, char *argv[])
 					window.close();
 				else if (event.type == sf::Event::KeyReleased && event.key.code == sf::Keyboard::Return)
 				{
+					// if we can accomodate more players
 					if (player.size() < 4)
 					{
+						// find a color and starting position that aren't taken
 						sf::Color c;
 						for (auto col : colors)
 						{
@@ -194,7 +196,7 @@ int main(int argc, char *argv[])
 							}
 						}
 						v2f s;
-						int i = 0;
+						int i = 0; // TODO HACKY AS BALLS
 						for (auto strt : starts)
 						{
 							bool taken = false;
@@ -336,6 +338,7 @@ int main(int argc, char *argv[])
 					win_s << "WINNER!";
 					paused = true;
 				}
+
 				/*
 				if (paused)
 				{
@@ -347,6 +350,7 @@ int main(int argc, char *argv[])
 					synp.setVolume(100.f);
 				}
 				*/
+
 				winner.setString(win_s.str());
 			}
 
@@ -359,12 +363,14 @@ int main(int argc, char *argv[])
 		fps.setString(fps_s.str());
 
 		vol_s.str("");
+		/*
 		vol_s << "Pian " << int (pian.getVolume()) << endl
 		      << "Elec " << int (elgt.getVolume()) << endl
 			  << "PanS " << int (psyn.getVolume()) << endl
 			  << "Rhod " << int (rhds.getVolume()) << endl
 			  << "Lead " << int (synl.getVolume()) << endl
 			  << "SPad " << int (synp.getVolume());
+		*/
 		vol.setString(vol_s.str());
 
 		window.clear(sf::Color(255, 255, 255));
