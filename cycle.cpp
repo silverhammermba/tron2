@@ -189,10 +189,10 @@ void Cycle::bind(const sf::Event & event)
 			switch (event.joystickButton.button)
 			{
 				case 0:
-					turn(0.f);
+					turn(90.f);
 					break;
 				case 1:
-					turn(90.f);
+					turn(0.f);
 					break;
 				case 2:
 					turn(180.f);

@@ -176,7 +176,7 @@ int main(int argc, char *argv[])
 					// if we can accomodate more players
 					if (player.size() < 4)
 					{
-						int joystick = -1;
+						int joys = -1;
 						// find a color and starting position that aren't taken
 						for (int i = 0; i < 4; i++)
 						{
@@ -185,15 +185,21 @@ int main(int argc, char *argv[])
 								bool taken = false;
 								for (auto p : player)
 								{
-									if (p->joystick == 0)
+									if (p->joystick == i)
 									{
+										cerr << "same!\n";
 										taken = true;
 										break;
+									}
+									else
+									{
+										cerr << "different!\n";
 									}
 								}
 								if (!taken)
 								{
-									joystick = i;
+									cerr << "using " << i << " joystick\n";
+									joys = i;
 									break;
 								}
 							}
@@ -236,7 +242,8 @@ int main(int argc, char *argv[])
 							}
 							i++;
 						}
-						player.push_back(new Cycle(s, startds[i], c, joystick));
+						cerr << "joystick " << joys << endl;
+						player.push_back(new Cycle(s, startds[i], c, joys));
 					}
 				}
 				else if (event.type == sf::Event::KeyReleased && event.key.code == sf::Keyboard::Back)
@@ -309,7 +316,6 @@ int main(int argc, char *argv[])
 
 			/* adjust track volume */
 			// TODO better way? need to allocate music better
-			/*
 			int i = 0;
 			int j;
 			for (auto p1 : player)
@@ -328,7 +334,6 @@ int main(int argc, char *argv[])
 				}
 				i++;
 			}
-			*/
 
 			// TODO generalize
 			if (!paused)
