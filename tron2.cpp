@@ -3,9 +3,9 @@
 #include <list>
 #include <sstream>
 #include <cmath>
+#include <SFML/Audio/Music.hpp>
 #include <SFML/Graphics.hpp>
 #include <SFML/Window.hpp>
-#include <SFML/Audio/Music.hpp>
 #include "cycle.hpp"
 #include "helpers.hpp"
 
@@ -176,7 +176,28 @@ int main(int argc, char *argv[])
 					// if we can accomodate more players
 					if (player.size() < 4)
 					{
+						int joystick = -1;
 						// find a color and starting position that aren't taken
+						for (int i = 0; i < 4; i++)
+						{
+							if (sf::Joystick::isConnected(i))
+							{
+								bool taken = false;
+								for (auto p : player)
+								{
+									if (p->joystick == 0)
+									{
+										taken = true;
+										break;
+									}
+								}
+								if (!taken)
+								{
+									joystick = i;
+									break;
+								}
+							}
+						}
 						sf::Color c;
 						for (auto col : colors)
 						{
@@ -215,7 +236,7 @@ int main(int argc, char *argv[])
 							}
 							i++;
 						}
-						player.push_back(new Cycle(s, startds[i], c));
+						player.push_back(new Cycle(s, startds[i], c, joystick));
 					}
 				}
 				else if (event.type == sf::Event::KeyReleased && event.key.code == sf::Keyboard::Back)

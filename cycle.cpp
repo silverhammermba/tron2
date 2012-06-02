@@ -1,4 +1,5 @@
 #include <SFML/Graphics.hpp>
+#include <SFML/Window.hpp>
 #include "cycle.hpp"
 #include "helpers.hpp"
 
@@ -11,9 +12,10 @@ const float Cycle::WIDTH = 10.f;
 const float Cycle::SPEED = 250.f;
 const float Cycle::DECAY = Cycle::Cycle::SPEED / 2.f;
 
-Cycle::Cycle(const v2f & pos, const float dir, const sf::Color & clr) :
+Cycle::Cycle(const v2f & pos, const float dir, const sf::Color & clr, int j) :
 	start(pos), color(clr), edge(v2f(1.f, Cycle::WIDTH))
 {
+	joystick = j;
 	startd = dir;
 
 	edge.setOrigin(0.5f, Cycle::WIDTH / 2.f);
@@ -180,22 +182,42 @@ void Cycle::draw(sf::RenderWindow & window) const
 
 void Cycle::bind(const sf::Event & event)
 {
+	if (joystick >= 0)
+	{
+		if (event.type == sf::Event::JoystickButtonPressed && event.joystickButton.joystickId == joystick)
+		{
+			switch (event.joystickButton.button)
+			{
+				case 0:
+					turn(0.f);
+					break;
+				case 1:
+					turn(90.f);
+					break;
+				case 2:
+					turn(180.f);
+					break;
+				case 3:
+					turn(270.f);
+			}
+		}
+	}
 	// TODO
-	if (event.type == sf::Event::KeyPressed)
+	else if (event.type == sf::Event::KeyPressed)
 	{
 		switch (event.key.code)
 		{
 			case sf::Keyboard::D:
-				this->turn(0.f);
+				turn(0.f);
 				break;
 			case sf::Keyboard::S:
-				this->turn(90.f);
+				turn(90.f);
 				break;
 			case sf::Keyboard::A:
-				this->turn(180.f);
+				turn(180.f);
 				break;
 			case sf::Keyboard::W:
-				this->turn(270.f);
+				turn(270.f);
 		}
 	}
 }

@@ -3,6 +3,7 @@
 
 #include <deque>
 #include <SFML/Graphics.hpp>
+#include <SFML/Window.hpp>
 #include "helpers.hpp"
 
 class Cycle
@@ -14,6 +15,7 @@ class Cycle
 	void set_edge_pos();
 	void new_segment(const v2f & pos, float dir);
 public:
+	int joystick;
 	v2f start;
 	float startd;
 	sf::Color color; // TODO
@@ -22,7 +24,7 @@ public:
 	static const float SPEED;
 	static const float DECAY;
 
-	Cycle(const v2f & pos, const float dir, const sf::Color & clr);
+	Cycle(const v2f & pos, const float dir, const sf::Color & clr, int j = -1);
 	~Cycle();
 	const std::deque<sf::RectangleShape *> & get_trail() const { return trail; }
 	const sf::RectangleShape & get_edge() const { return edge; }
