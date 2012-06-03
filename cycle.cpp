@@ -229,6 +229,7 @@ void Cycle::reset()
 	decay = Cycle::DECAY;
 	trail.clear();
 	new_segment(start, startd);
+	set_edge_pos();
 }
 
 // add a new segment to the front of the snake

@@ -15,6 +15,8 @@ using std::cin;
 using std::cerr;
 using std::endl;
 
+void set_volume(Cycle *p1, Cycle *p2, sf::Music *track);
+
 int main(int argc, char *argv[])
 {
 	//int PLAYERS = atoi(argv[1]);
@@ -116,7 +118,7 @@ int main(int argc, char *argv[])
 	synl.setLoop(true);
 	synp.setLoop(true);
 
-	bass.setVolume(0.f);
+	bass.setVolume(100.f);
 	pian.setVolume(0.f);
 	elgt.setVolume(0.f);
 	psyn.setVolume(0.f);
@@ -171,83 +173,92 @@ int main(int argc, char *argv[])
 			{
 				if (event.type == sf::Event::KeyReleased && event.key.code == sf::Keyboard::Escape)
 					window.close();
-				else if (event.type == sf::Event::KeyReleased && event.key.code == sf::Keyboard::Return)
+				else if ((event.type == sf::Event::KeyPressed            && event.key.code              == sf::Keyboard::Return)
+				      || (event.type == sf::Event::JoystickButtonPressed && event.joystickButton.button == 7))
 				{
 					// if we can accomodate more players
 					if (player.size() < 4)
 					{
-						int joys = -1;
-						// find a color and starting position that aren't taken
-						for (int i = 0; i < 4; i++)
+						int joystick;
+						if (event.type == sf::Event::KeyPressed)
+							joystick = -1;
+						else
+							joystick = event.joystickButton.joystickId;
+
+						// check if the controller is taken
+						bool taken = false;
+						for (auto p : player)
 						{
-							if (sf::Joystick::isConnected(i))
+							if (p->joystick == joystick)
+							{
+								taken = true;
+								break;
+							}
+						}
+
+						if (!taken)
+						{
+							// find color and starting position that aren't being used
+							sf::Color c;
+							for (auto col : colors)
 							{
 								bool taken = false;
 								for (auto p : player)
 								{
-									if (p->joystick == i)
+									if (p->color == col)
 									{
-										cerr << "same!\n";
 										taken = true;
 										break;
-									}
-									else
-									{
-										cerr << "different!\n";
 									}
 								}
 								if (!taken)
 								{
-									cerr << "using " << i << " joystick\n";
-									joys = i;
+									c = col;
 									break;
 								}
 							}
-						}
-						sf::Color c;
-						for (auto col : colors)
-						{
-							bool taken = false;
-							for (auto p : player)
+							v2f s;
+							int i = 0; // TODO HACKY AS BALLS
+							for (auto strt : starts)
 							{
-								if (p->color == col)
+								bool taken = false;
+								for (auto p : player)
 								{
-									taken = true;
-									break;
+									if (p->start == strt)
+									{
+										taken = true;
+										break;
+									}
 								}
-							}
-							if (!taken)
-							{
-								c = col;
-								break;
-							}
-						}
-						v2f s;
-						int i = 0; // TODO HACKY AS BALLS
-						for (auto strt : starts)
-						{
-							bool taken = false;
-							for (auto p : player)
-							{
-								if (p->start == strt)
+								if (!taken)
 								{
-									taken = true;
+									s = strt;
 									break;
 								}
+								i++;
 							}
-							if (!taken)
-							{
-								s = strt;
-								break;
-							}
-							i++;
+							player.push_back(new Cycle(s, startds[i], c, joystick));
 						}
-						cerr << "joystick " << joys << endl;
-						player.push_back(new Cycle(s, startds[i], c, joys));
 					}
 				}
-				else if (event.type == sf::Event::KeyReleased && event.key.code == sf::Keyboard::Back)
-					player.pop_back();
+				else if ((event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Back)
+				      || (event.type == sf::Event::JoystickButtonPressed && event.joystickButton.button == 6))
+				{
+					int joystick;
+					if (event.type == sf::Event::KeyPressed)
+						joystick = -1;
+					else
+						joystick = event.joystickButton.joystickId;
+
+					for (auto p : player)
+					{
+						if (p->joystick == joystick)
+						{
+							player.remove(p);
+							break;
+						}
+					}
+				}
 				else if (event.type == sf::Event::KeyReleased && event.key.code == sf::Keyboard::Space)
 					menu = false;
 			}
@@ -317,19 +328,23 @@ int main(int argc, char *argv[])
 			/* adjust track volume */
 			// TODO better way? need to allocate music better
 			int i = 0;
-			int j;
-			for (auto p1 : player)
+			for (auto it = player.begin(); it != player.end(); it++)
 			{
-				j = 0;
-				for (auto p2 : player)
+				int j = 0;
+				for (auto jt = player.begin(); jt != player.end(); jt++)
 				{
-					if (p1 != p2)
-					{
-						float vol = 100.f - clamp<float>(0.f, v2dist<float>(p1->get_edge().getPosition(), p2->get_edge().getPosition()), 300.f) / 3.f;
-						track[3 * i + j - 1]->setVolume(vol);
-						if (!paused)
-						cerr << "Vol " << i << "," << j << "=" << vol << endl;
-					}
+					if (i == 0 && j == 1)
+						set_volume(*it, *jt, &pian);
+					else if (i == 0 && j == 2)
+						set_volume(*it, *jt, &elgt);
+					else if (i == 0 && j == 3)
+						set_volume(*it, *jt, &psyn);
+					else if (i == 1 && j == 2)
+						set_volume(*it, *jt, &rhds);
+					else if (i == 1 && j == 3)
+						set_volume(*it, *jt, &synl);
+					else if (i == 2 && j == 3)
+						set_volume(*it, *jt, &synp);
 					j++;
 				}
 				i++;
@@ -414,4 +429,10 @@ int main(int argc, char *argv[])
 	}
 
 	return EXIT_SUCCESS;
+}
+
+void set_volume(Cycle *p1, Cycle *p2, sf::Music *track)
+{
+	float vol = 100.f - clamp<float>(0.f, v2dist<float>(p1->get_edge().getPosition(), p2->get_edge().getPosition()), 300.f) / 3.f;
+	track->setVolume(vol);
 }
