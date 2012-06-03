@@ -268,6 +268,53 @@ int main(int argc, char *argv[])
 						}
 					}
 				}
+				// change colors
+				else if ((event.type == sf::Event::KeyPressed            && event.key.code              == sf::Keyboard::C)
+				      || (event.type == sf::Event::JoystickButtonPressed && event.joystickButton.button == 0))
+				{
+					// TODO DRY OFF
+					int joystick;
+					if (event.type == sf::Event::KeyPressed)
+						joystick = -1;
+					else
+						joystick = event.joystickButton.joystickId;
+
+					for (auto p : player)
+					{
+						if (p->joystick == joystick)
+						{
+							int i;
+							int l = colors.size();
+							// find current color
+							for (i = 0; i < l; i++)
+							{
+								if (colors[i] == p->color) break;
+							}
+							int col = i;
+							i++;
+							// find next available color
+							for (; i % l != col; i++)
+							{
+								bool taken = false;
+								for (auto q : player)
+								{
+									if (q->color == colors[i % l])
+									{
+										taken = true;
+										break;
+									}
+								}
+								if (!taken)
+								{
+									p->color = colors[i % l];
+									p->reset();
+									break;
+								}
+							}
+							break;
+						}
+					}
+				}
 				// start playing
 				else if (event.type == sf::Event::KeyReleased && event.key.code == sf::Keyboard::Space)
 				{
@@ -300,10 +347,11 @@ int main(int argc, char *argv[])
 		float stime = fclock.getElapsedTime().asSeconds();
 		timescale = std::min(3.f, stime) / 3.f;
 
+		// TODO combine menu with paused?
 		if (menu)
 		{
-				winner.setColor(sf::Color(255, 255, 255));
-				winner.setString("MENU");
+			winner.setColor(sf::Color(255, 255, 255));
+			winner.setString("MENU");
 		}
 		else
 		{
