@@ -8,12 +8,12 @@
 using std::cerr;
 using std::endl;
 
-const float Cycle::WIDTH = 10.f;
+const float Cycle::WIDTH = 8.5f;
 const float Cycle::SPEED = 250.f;
 const float Cycle::DECAY = Cycle::Cycle::SPEED / 2.f;
 
 Cycle::Cycle(const v2f & pos, const float dir, const sf::Color & clr, int j) :
-	start(pos), color(clr), edge(v2f(1.f, Cycle::WIDTH))
+	start(pos), color(clr), edge(v2f(1.f, Cycle::WIDTH)), ready_text("READY", sf::Font::getDefaultFont(), 16)
 {
 	joystick = j;
 	startd = dir;
@@ -21,8 +21,11 @@ Cycle::Cycle(const v2f & pos, const float dir, const sf::Color & clr, int j) :
 	edge.setOrigin(0.5f, Cycle::WIDTH / 2.f);
 	edge.setFillColor(sf::Color(255.f, 255.f, 255.f));
 
-	reset();
+	sf::FloatRect size = ready_text.getGlobalBounds();
+	ready_text.setOrigin(size.width / 2, size.height / 2);
+	ready_text.setPosition(pos);
 
+	reset();
 }
 
 Cycle::~Cycle()
@@ -174,12 +177,15 @@ void Cycle::crash(float dist)
 	crashed = true;
 }
 
-void Cycle::draw(sf::RenderWindow & window) const
+// draw the player on the screen
+void Cycle::draw(sf::RenderWindow & window, bool paused) const
 {
 	for (auto rect : trail) window.draw(*rect);
 	window.draw(edge);
+	if (paused) window.draw(ready_text);
 }
 
+// respond to an event
 void Cycle::bind(const sf::Event & event)
 {
 	if (joystick >= 0)
@@ -199,10 +205,17 @@ void Cycle::bind(const sf::Event & event)
 					break;
 				case 3:
 					turn(270.f);
+					break;
+				case 7:
+					set_ready(true);
+					break;
+				case 8:
+					set_ready(true);
+					break;
 			}
 		}
 	}
-	// TODO
+	// TODO subcontrols
 	else if (event.type == sf::Event::KeyPressed)
 	{
 		switch (event.key.code)
@@ -218,12 +231,22 @@ void Cycle::bind(const sf::Event & event)
 				break;
 			case sf::Keyboard::W:
 				turn(270.f);
+				break;
+			case sf::Keyboard::Return:
+				set_ready(true);
+				break;
+			case sf::Keyboard::Back:
+				set_ready(false);
+				break;
 		}
 	}
 }
 
+// set the player back to their starting position with a
+// single segment
 void Cycle::reset()
 {
+	ready = false;
 	crashed = false;
 	speed = Cycle::SPEED;
 	decay = Cycle::DECAY;
@@ -242,4 +265,13 @@ void Cycle::new_segment(const v2f & pos, float dir)
 	trail.front()->setFillColor(color);
 
 	edge.setRotation(dir);
+}
+
+void Cycle::set_ready(bool val)
+{
+	ready = val;
+	if (val)
+		ready_text.setColor(color);
+	else
+		ready_text.setColor(sf::Color(0, 0, 0));
 }

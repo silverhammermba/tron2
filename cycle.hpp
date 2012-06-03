@@ -12,9 +12,11 @@ class Cycle
 	float decay;
 	std::deque<sf::RectangleShape *> trail;
 	sf::RectangleShape edge;
+	sf::Text ready_text;
 	void set_edge_pos();
 	void new_segment(const v2f & pos, float dir);
 public:
+	bool ready;
 	int joystick;
 	v2f start;
 	float startd;
@@ -37,9 +39,10 @@ public:
 	bool check_collision(Cycle & cycle);
 	bool in(const sf::RectangleShape &);
 	void crash(float dist = 0.f);
-	void draw(sf::RenderWindow &) const;
+	void draw(sf::RenderWindow &, bool paused) const;
 	void bind(const sf::Event & event);
 	void reset();
+	void set_ready(bool val);
 };
 
 #endif

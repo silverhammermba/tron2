@@ -22,6 +22,7 @@ int main(int argc, char *argv[])
 	//int PLAYERS = atoi(argv[1]);
 
 	sf::Clock clock;
+	sf::Clock fclock;
 
 	sf::Text fps;
 	fps.setCharacterSize(12);
@@ -73,12 +74,16 @@ int main(int argc, char *argv[])
 		270.f
 	};
 
-	std::array<sf::Color, 4> colors
+	std::array<sf::Color, 8> colors
 	{
 		sf::Color(255, 0, 0),
 		sf::Color(0, 255, 0),
 		sf::Color(0, 0, 255),
-		sf::Color(255, 0, 255)
+		sf::Color(255, 0, 255),
+		sf::Color(255, 255, 0),
+		sf::Color(255, 127, 0),
+		sf::Color(0, 255, 255),
+		sf::Color(0, 0, 0)
 	};
 
 	/*
@@ -145,6 +150,7 @@ int main(int argc, char *argv[])
 	track[5] = &synl;
 	track[8] = &pian;
 
+	float timescale = 1.f;
 	bool menu = true;
 
 	while (window.isOpen())
@@ -171,8 +177,10 @@ int main(int argc, char *argv[])
 			}
 			if (menu)
 			{
+				// quit
 				if (event.type == sf::Event::KeyReleased && event.key.code == sf::Keyboard::Escape)
 					window.close();
+				// add players
 				else if ((event.type == sf::Event::KeyPressed            && event.key.code              == sf::Keyboard::Return)
 				      || (event.type == sf::Event::JoystickButtonPressed && event.joystickButton.button == 7))
 				{
@@ -241,6 +249,7 @@ int main(int argc, char *argv[])
 						}
 					}
 				}
+				// remove players
 				else if ((event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Back)
 				      || (event.type == sf::Event::JoystickButtonPressed && event.joystickButton.button == 6))
 				{
@@ -259,8 +268,12 @@ int main(int argc, char *argv[])
 						}
 					}
 				}
+				// start playing
 				else if (event.type == sf::Event::KeyReleased && event.key.code == sf::Keyboard::Space)
+				{
 					menu = false;
+					fclock.restart();
+				}
 			}
 			else
 			{
@@ -271,25 +284,6 @@ int main(int argc, char *argv[])
 						p->reset();
 
 					paused = false;
-					pian.setVolume(0.f);
-					elgt.setVolume(0.f);
-					psyn.setVolume(0.f);
-					rhds.setVolume(0.f);
-					synl.setVolume(0.f);
-					synp.setVolume(0.f);
-				}
-				else if ((event.type == sf::Event::KeyPressed) && (event.key.code == sf::Keyboard::R))
-				{
-					for (auto p : player)
-						p->reset();
-
-					paused = false;
-					pian.setVolume(0.f);
-					elgt.setVolume(0.f);
-					psyn.setVolume(0.f);
-					rhds.setVolume(0.f);
-					synl.setVolume(0.f);
-					synp.setVolume(0.f);
 				}
 				else
 				{
@@ -302,14 +296,38 @@ int main(int argc, char *argv[])
 		float time = clock.getElapsedTime().asSeconds();
 		clock.restart();
 
+		// slow motion start
+		float stime = fclock.getElapsedTime().asSeconds();
+		timescale = std::min(3.f, stime) / 3.f;
+
 		if (menu)
 		{
+				winner.setColor(sf::Color(255, 255, 255));
 				winner.setString("MENU");
 		}
 		else
 		{
+			if (paused)
+			{
+				bool all_ready {true};
+				for (auto p : player)
+				{
+					if (!p->ready)
+					{
+						all_ready = false;
+						break;
+					}
+				}
+				if (all_ready)
+				{
+					paused = false;
+					for (auto p : player) p->reset();
+					fclock.restart();
+				}
+			}
+
 			for (auto p : player)
-				p->move(time);
+				p->move(time * timescale);
 			// TODO better way?
 			for (auto p1 : player)
 			{
@@ -364,6 +382,7 @@ int main(int argc, char *argv[])
 					win_s << "DRAW";
 					winner.setColor(sf::Color(255, 255, 255));
 					paused = true;
+					for (auto p : player) p->set_ready(false);
 				}
 				else if (living == 1)
 				{
@@ -378,6 +397,7 @@ int main(int argc, char *argv[])
 					}
 					win_s << "WINNER!";
 					paused = true;
+					for (auto p : player) p->set_ready(false);
 				}
 
 				/*
@@ -419,7 +439,7 @@ int main(int argc, char *argv[])
 		window.draw(bounds);
 
 		for (auto p : player)
-			p->draw(window);
+			p->draw(window, paused);
 
 		window.draw(fps);
 		window.draw(vol);
