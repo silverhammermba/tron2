@@ -14,9 +14,11 @@ class Cycle
 	std::deque<sf::RectangleShape *> trail;
 	sf::RectangleShape edge;
 	sf::Text ready_text;
+	sf::Text score_text;
 	void set_edge_pos();
 	void new_segment(const v2f & pos, float dir);
 public:
+	int score;
 	std::map<Cycle *, int> deaths;
 	bool ready;
 	int joystick;
@@ -34,7 +36,7 @@ public:
 	const sf::RectangleShape & get_edge() const { return edge; }
 	void set_speed(const float sp) { speed = sp; }
 	void set_decay(const float dc) { decay = dc; }
-	bool move_forward(float);
+	void move_forward(float);
 	bool shorten_trail(float);
 	void move(float);
 	void turn(float);
@@ -47,6 +49,7 @@ public:
 	void set_ready(bool val);
 	void set_color(const sf::Color & col);
 	void add_death(Cycle *cycle);
+	void scored();
 };
 
 #endif

@@ -1,4 +1,5 @@
 #include <map>
+#include <sstream>
 #include <SFML/Graphics.hpp>
 #include <SFML/Window.hpp>
 #include "cycle.hpp"
@@ -14,8 +15,9 @@ const float Cycle::SPEED = 250.f;
 const float Cycle::DECAY = Cycle::Cycle::SPEED / 2.f;
 
 Cycle::Cycle(const v2f & pos, const float dir, const sf::Color & clr, int j) :
-	start(pos), color(clr), edge(v2f(1.f, Cycle::WIDTH)), ready_text("READY", sf::Font::getDefaultFont(), 16)
+	start(pos), color(clr), edge(v2f(1.f, Cycle::WIDTH)), ready_text("READY", sf::Font::getDefaultFont(), 16), score_text("", sf::Font::getDefaultFont(), 16)
 {
+	score = 0;
 	joystick = j;
 	startd = dir;
 
@@ -26,6 +28,7 @@ Cycle::Cycle(const v2f & pos, const float dir, const sf::Color & clr, int j) :
 	ready_text.setOrigin(size.width / 2, size.height / 2);
 	ready_text.setPosition(pos);
 	ready_text.setColor(sf::Color(0, 0, 0));
+	score_text.setPosition(v2f(pos.x + 20, pos.y));
 
 	reset();
 }
@@ -35,16 +38,31 @@ Cycle::~Cycle()
 	delete trail.front();
 }
 
-bool Cycle::move_forward(float time)
+// move and check for self-collision
+void Cycle::move_forward(float time)
 {
 	trail.front()->setSize(trail.front()->getSize() + v2f(speed * time, 0));
 	set_edge_pos();
 	sf::FloatRect head = edge.getGlobalBounds();
+	float dir = trail.front()->getRotation();
 	for (int i = 3; i < trail.size(); i++)
 	{
-		if (head.intersects(trail[i]->getGlobalBounds())) return false;
+		sf::FloatRect rect = trail[i]->getGlobalBounds();
+		if (head.intersects(rect))
+		{
+			float dist;
+			if (dir == 0.f)
+				dist = head.left + head.width - rect.left;
+			else if (dir == 90.f)
+				dist = head.top + head.height - rect.top;
+			else if (dir == 180.f)
+				dist = rect.left + rect.width - head.left;
+			else if (dir == 270.f)
+				dist = rect.top + rect.height - head.top;
+			crash(dist);
+			add_death(this);
+		}
 	}
-	return true;
 }
 
 void Cycle::set_edge_pos()
@@ -69,7 +87,10 @@ bool Cycle::shorten_trail(float time)
 
 void Cycle::move(float time)
 {
-	if (!crashed) move_forward(time);
+	if (!crashed)
+	{
+		move_forward(time);
+	}
 	if (shorten_trail(time) && trail.size() > 1)
 	{
 		delete trail.back();
@@ -101,9 +122,9 @@ bool Cycle::check_collision(Cycle & cycle)
 	sf::FloatRect head = edge.getGlobalBounds();
 	sf::FloatRect other = cycle.get_edge().getGlobalBounds();
 	// edge case: perpendicular head-on collision
+	float dir = trail.front()->getRotation();
 	if (head.intersects(other))
 	{
-		float dir = trail.front()->getRotation();
 		float oth = cycle.get_trail().front()->getRotation();
 		if (perpendicular(dir, oth))
 		{
@@ -129,26 +150,34 @@ bool Cycle::check_collision(Cycle & cycle)
 
 			if (prg1 <= prg2)
 			{
-				//cerr << this << " crashed in edge case\n";
 				crash(prg1);
 				add_death(&cycle);
 				return true;
 			}
 			else
 			{
-				//cerr << this << " survived edge case (" << prg1 << " > " << prg2 << ")\n";
 				return false;
 			}
 		}
 	}
+	// normal collision
 	for (auto segment : cycle.get_trail())
 	{
-		if (head.intersects(segment->getGlobalBounds()))
+		sf::FloatRect rect = segment->getGlobalBounds();
+		if (head.intersects(rect))
 		{
-			// TODO figure out how far to move back
-			crash();
-			add_death(this);
-			//cerr << this << " crashed in normal case\n";
+			// determine distance to back up
+			float dist;
+			if (dir == 0.f)
+				dist = head.left + head.width - rect.left;
+			else if (dir == 90.f)
+				dist = head.top + head.height - rect.top;
+			else if (dir == 180.f)
+				dist = rect.left + rect.width - head.left;
+			else if (dir == 270.f)
+				dist = rect.top + rect.height - head.top;
+			crash(dist);
+			add_death(&cycle);
 			return true;
 		}
 	}
@@ -186,6 +215,7 @@ void Cycle::draw(sf::RenderWindow & window, bool paused) const
 	if (paused)
 	{
 		window.draw(ready_text);
+		window.draw(score_text);
 		for (auto pt : deaths)
 		{
 		}
@@ -296,4 +326,12 @@ void Cycle::add_death(Cycle *cycle)
 		deaths[cycle]++;
 	else
 		deaths[cycle] = 1;
+}
+
+void Cycle::scored()
+{
+	score++;
+	std::ostringstream text;
+	text << score;
+	score_text.setString(text.str());
 }

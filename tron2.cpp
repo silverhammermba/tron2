@@ -414,6 +414,7 @@ int main(int argc, char *argv[])
 					if (!p->crashed)
 					{
 						winner.setColor(p->color);
+						p->scored();
 						//p->crashed = true;
 						break;
 					}
