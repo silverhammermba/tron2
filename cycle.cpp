@@ -24,6 +24,7 @@ Cycle::Cycle(const v2f & pos, const float dir, const sf::Color & clr, int j) :
 	sf::FloatRect size = ready_text.getGlobalBounds();
 	ready_text.setOrigin(size.width / 2, size.height / 2);
 	ready_text.setPosition(pos);
+	ready_text.setColor(sf::Color(0, 0, 0));
 
 	reset();
 }
@@ -274,4 +275,11 @@ void Cycle::set_ready(bool val)
 		ready_text.setColor(color);
 	else
 		ready_text.setColor(sf::Color(0, 0, 0));
+}
+
+void Cycle::set_color(const sf::Color & col)
+{
+	color = col;
+	for (auto segment : trail)
+		segment->setFillColor(color);
 }

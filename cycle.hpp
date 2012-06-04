@@ -43,6 +43,7 @@ public:
 	void bind(const sf::Event & event);
 	void reset();
 	void set_ready(bool val);
+	void set_color(const sf::Color & col);
 };
 
 #endif

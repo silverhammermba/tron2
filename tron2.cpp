@@ -38,7 +38,7 @@ int main(int argc, char *argv[])
 	winner.setCharacterSize(24);
 	std::ostringstream win_s;
 
-	bool paused {false};
+	bool paused {true};
 
 	sf::RenderWindow window
 	{
@@ -151,7 +151,6 @@ int main(int argc, char *argv[])
 	track[8] = &pian;
 
 	float timescale = 1.f;
-	bool menu = true;
 
 	while (window.isOpen())
 	{
@@ -175,7 +174,7 @@ int main(int argc, char *argv[])
 				}
 				winner.setPosition(view.getCenter());
 			}
-			if (menu)
+			if (paused)
 			{
 				// quit
 				if (event.type == sf::Event::KeyReleased && event.key.code == sf::Keyboard::Escape)
@@ -199,6 +198,7 @@ int main(int argc, char *argv[])
 						{
 							if (p->joystick == joystick)
 							{
+								p->set_ready(true);
 								taken = true;
 								break;
 							}
@@ -269,7 +269,7 @@ int main(int argc, char *argv[])
 					}
 				}
 				// change colors
-				else if ((event.type == sf::Event::KeyPressed            && event.key.code              == sf::Keyboard::C)
+				else if ((event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::C)
 				      || (event.type == sf::Event::JoystickButtonPressed && event.joystickButton.button == 0))
 				{
 					// TODO DRY OFF
@@ -306,8 +306,7 @@ int main(int argc, char *argv[])
 								}
 								if (!taken)
 								{
-									p->color = colors[i % l];
-									p->reset();
+									p->set_color(colors[i % l]);
 									break;
 								}
 							}
@@ -315,28 +314,11 @@ int main(int argc, char *argv[])
 						}
 					}
 				}
-				// start playing
-				else if (event.type == sf::Event::KeyReleased && event.key.code == sf::Keyboard::Space)
-				{
-					menu = false;
-					fclock.restart();
-				}
 			}
 			else
 			{
-				if (event.type == sf::Event::KeyReleased && event.key.code == sf::Keyboard::Escape)
-				{
-					menu = true;
-					for (auto p : player)
-						p->reset();
-
-					paused = false;
-				}
-				else
-				{
-					for (auto p : player)
-						p->bind(event);
-				}
+				for (auto p : player)
+					p->bind(event);
 			}
 		}
 
@@ -347,33 +329,26 @@ int main(int argc, char *argv[])
 		float stime = fclock.getElapsedTime().asSeconds();
 		timescale = std::min(3.f, stime) / 3.f;
 
-		// TODO combine menu with paused?
-		if (menu)
+		if (paused)
 		{
-			winner.setColor(sf::Color(255, 255, 255));
-			winner.setString("MENU");
+			bool all_ready {true};
+			for (auto p : player)
+			{
+				if (!p->ready)
+				{
+					all_ready = false;
+					break;
+				}
+			}
+			if (all_ready)
+			{
+				paused = false;
+				for (auto p : player) p->reset();
+				fclock.restart();
+			}
 		}
 		else
 		{
-			if (paused)
-			{
-				bool all_ready {true};
-				for (auto p : player)
-				{
-					if (!p->ready)
-					{
-						all_ready = false;
-						break;
-					}
-				}
-				if (all_ready)
-				{
-					paused = false;
-					for (auto p : player) p->reset();
-					fclock.restart();
-				}
-			}
-
 			for (auto p : player)
 				p->move(time * timescale);
 			// TODO better way?
@@ -415,53 +390,48 @@ int main(int argc, char *argv[])
 				}
 				i++;
 			}
+			win_s.str("");
 
-			// TODO generalize
-			if (!paused)
+			int living = 0;
+			for(auto p : player)
+				if (!p->crashed) living++;
+
+			if (living == 0)
 			{
-				win_s.str("");
-
-				int living = 0;
-				for(auto p : player)
-					if (!p->crashed) living++;
-
-				if (living == 0)
-				{
-					win_s << "DRAW";
-					winner.setColor(sf::Color(255, 255, 255));
-					paused = true;
-					for (auto p : player) p->set_ready(false);
-				}
-				else if (living == 1)
-				{
-					for (auto p : player)
-					{
-						if (!p->crashed)
-						{
-							winner.setColor(p->color);
-							//p->crashed = true;
-							break;
-						}
-					}
-					win_s << "WINNER!";
-					paused = true;
-					for (auto p : player) p->set_ready(false);
-				}
-
-				/*
-				if (paused)
-				{
-					pian.setVolume(100.f);
-					elgt.setVolume(100.f);
-					psyn.setVolume(100.f);
-					rhds.setVolume(100.f);
-					synl.setVolume(100.f);
-					synp.setVolume(100.f);
-				}
-				*/
-
-				winner.setString(win_s.str());
+				win_s << "DRAW";
+				winner.setColor(sf::Color(255, 255, 255));
+				paused = true;
+				for (auto p : player) p->set_ready(false);
 			}
+			else if (living == 1)
+			{
+				for (auto p : player)
+				{
+					if (!p->crashed)
+					{
+						winner.setColor(p->color);
+						//p->crashed = true;
+						break;
+					}
+				}
+				win_s << "WINNER!";
+				paused = true;
+				for (auto p : player) p->set_ready(false);
+			}
+
+			/*
+			if (paused)
+			{
+				pian.setVolume(100.f);
+				elgt.setVolume(100.f);
+				psyn.setVolume(100.f);
+				rhds.setVolume(100.f);
+				synl.setVolume(100.f);
+				synp.setVolume(100.f);
+			}
+			*/
+
+			winner.setString(win_s.str());
 
 			sf::FloatRect size = winner.getGlobalBounds();
 			winner.setOrigin(size.width / 2, size.height / 2);
