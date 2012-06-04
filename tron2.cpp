@@ -180,30 +180,29 @@ int main(int argc, char *argv[])
 				if (event.type == sf::Event::KeyReleased && event.key.code == sf::Keyboard::Escape)
 					window.close();
 				// add players
-				else if ((event.type == sf::Event::KeyPressed            && event.key.code              == sf::Keyboard::Return)
+				else if ((event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Return)
 				      || (event.type == sf::Event::JoystickButtonPressed && event.joystickButton.button == 7))
 				{
+					int joystick;
+					if (event.type == sf::Event::KeyPressed)
+						joystick = -1;
+					else
+						joystick = event.joystickButton.joystickId;
+
+					// check if the controller is taken
+					bool taken = false;
+					for (auto p : player)
+					{
+						if (p->joystick == joystick)
+						{
+							p->set_ready(true);
+							taken = true;
+							break;
+						}
+					}
 					// if we can accomodate more players
 					if (player.size() < 4)
 					{
-						int joystick;
-						if (event.type == sf::Event::KeyPressed)
-							joystick = -1;
-						else
-							joystick = event.joystickButton.joystickId;
-
-						// check if the controller is taken
-						bool taken = false;
-						for (auto p : player)
-						{
-							if (p->joystick == joystick)
-							{
-								p->set_ready(true);
-								taken = true;
-								break;
-							}
-						}
-
 						if (!taken)
 						{
 							// find color and starting position that aren't being used
