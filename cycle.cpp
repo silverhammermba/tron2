@@ -1,3 +1,4 @@
+#include <map>
 #include <SFML/Graphics.hpp>
 #include <SFML/Window.hpp>
 #include "cycle.hpp"
@@ -68,11 +69,7 @@ bool Cycle::shorten_trail(float time)
 
 void Cycle::move(float time)
 {
-	if (!crashed)
-	{
-		if (!move_forward(time))
-			crash();
-	}
+	if (!crashed) move_forward(time);
 	if (shorten_trail(time) && trail.size() > 1)
 	{
 		delete trail.back();
@@ -134,6 +131,7 @@ bool Cycle::check_collision(Cycle & cycle)
 			{
 				//cerr << this << " crashed in edge case\n";
 				crash(prg1);
+				add_death(&cycle);
 				return true;
 			}
 			else
@@ -149,6 +147,7 @@ bool Cycle::check_collision(Cycle & cycle)
 		{
 			// TODO figure out how far to move back
 			crash();
+			add_death(this);
 			//cerr << this << " crashed in normal case\n";
 			return true;
 		}
@@ -165,6 +164,7 @@ bool Cycle::in(const sf::RectangleShape & bounds)
 	else
 	{
 		crash();
+		add_death(nullptr);
 		return false;
 	}
 }
@@ -183,7 +183,13 @@ void Cycle::draw(sf::RenderWindow & window, bool paused) const
 {
 	for (auto rect : trail) window.draw(*rect);
 	window.draw(edge);
-	if (paused) window.draw(ready_text);
+	if (paused)
+	{
+		window.draw(ready_text);
+		for (auto pt : deaths)
+		{
+		}
+	}
 }
 
 // respond to an event
@@ -282,4 +288,12 @@ void Cycle::set_color(const sf::Color & col)
 	color = col;
 	for (auto segment : trail)
 		segment->setFillColor(color);
+}
+
+void Cycle::add_death(Cycle *cycle)
+{
+	if (deaths.count(cycle))
+		deaths[cycle]++;
+	else
+		deaths[cycle] = 1;
 }

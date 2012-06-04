@@ -1,6 +1,7 @@
 #ifndef CYCLE_H_
 #define CYCLE_H_
 
+#include <map>
 #include <deque>
 #include <SFML/Graphics.hpp>
 #include <SFML/Window.hpp>
@@ -16,6 +17,7 @@ class Cycle
 	void set_edge_pos();
 	void new_segment(const v2f & pos, float dir);
 public:
+	std::map<Cycle *, int> deaths;
 	bool ready;
 	int joystick;
 	v2f start;
@@ -44,6 +46,7 @@ public:
 	void reset();
 	void set_ready(bool val);
 	void set_color(const sf::Color & col);
+	void add_death(Cycle *cycle);
 };
 
 #endif

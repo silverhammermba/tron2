@@ -98,6 +98,7 @@ int main(int argc, char *argv[])
 	*/
 
 	// (shitty) MUSIC!!!
+	/*
 	sf::Music bass;
 	sf::Music pian;
 	sf::Music elgt;
@@ -123,7 +124,7 @@ int main(int argc, char *argv[])
 	synl.setLoop(true);
 	synp.setLoop(true);
 
-	bass.setVolume(100.f);
+	bass.setVolume(0.f);
 	pian.setVolume(0.f);
 	elgt.setVolume(0.f);
 	psyn.setVolume(0.f);
@@ -149,6 +150,7 @@ int main(int argc, char *argv[])
 	track[2] = &rhds;
 	track[5] = &synl;
 	track[8] = &pian;
+	*/
 
 	float timescale = 1.f;
 
@@ -367,6 +369,7 @@ int main(int argc, char *argv[])
 
 			/* adjust track volume */
 			// TODO better way? need to allocate music better
+			/*
 			int i = 0;
 			for (auto it = player.begin(); it != player.end(); it++)
 			{
@@ -389,6 +392,8 @@ int main(int argc, char *argv[])
 				}
 				i++;
 			}
+			*/
+
 			win_s.str("");
 
 			int living = 0;
