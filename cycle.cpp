@@ -17,7 +17,7 @@ const float Cycle::DECAY = Cycle::Cycle::SPEED / 2.f;
 Cycle::Cycle(const v2f & pos, const float dir, const sf::Color & clr, int j) :
 	start(pos), color(clr), edge(v2f(1.f, Cycle::WIDTH)), ready_text("READY", sf::Font::getDefaultFont(), 16), score_text("", sf::Font::getDefaultFont(), 16)
 {
-	//pending_turn = -1.f;
+	pending = -1.f;
 	backitup = 0.f;
 	score = 0;
 	joystick = j;
@@ -89,13 +89,8 @@ void Cycle::move(float time)
 {
 	if (!crashed)
 	{
-		/*
-		if (pending_turn >= 0.f)
-		{
-			turn(pending_turn);
-			pending_turn = -1.f;
-		}
-		*/
+		if (pending >= 0.f)
+			turn(pending);
 		move_forward(time);
 	}
 	if (shorten_trail(time) && trail.size() > 1)
@@ -112,20 +107,22 @@ void Cycle::turn(float dir)
 	{
 		float org = trail.front()->getRotation();
 		// TODO smarter way to do this? also, only restrict turns for 180s
-		if (trail.front()->getSize().x > 2 * Cycle::WIDTH && perpendicular(org, dir))
+		if (perpendicular(org, dir))
 		{
-			float rad = org * M_PI / 180.f;
-			v2f shift (v2f(cos(rad), sin(rad)) * (trail.front()->getSize().x - Cycle::WIDTH));
-			v2f pos (trail.front()->getPosition() + shift);
+			if (trail.front()->getSize().x > 2 * Cycle::WIDTH)
+			{
+				float rad = org * M_PI / 180.f;
+				v2f shift (v2f(cos(rad), sin(rad)) * (trail.front()->getSize().x - Cycle::WIDTH));
+				v2f pos (trail.front()->getPosition() + shift);
 
-			new_segment(pos, dir);
+				new_segment(pos, dir);
+				pending = -1.f;
+			}
+			else
+			{
+				pending = dir;
+			}
 		}
-		/*
-		else
-		{
-			pending_turn = dir;
-		}
-		*/
 	}
 }
 

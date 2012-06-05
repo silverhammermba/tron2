@@ -12,6 +12,7 @@ class Cycle
 	float speed;
 	float decay;
 	float backitup;
+	float pending;
 	std::deque<sf::RectangleShape *> trail;
 	sf::RectangleShape edge;
 	sf::Text ready_text;

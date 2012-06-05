@@ -200,6 +200,7 @@ int main(int argc, char *argv[])
 					{
 						if (p->joystick == joystick)
 						{
+							//cerr << "Player taken, readying\n";
 							p->set_ready(true);
 							taken = true;
 							break;
@@ -210,6 +211,7 @@ int main(int argc, char *argv[])
 					{
 						if (!taken)
 						{
+							//cerr << "Adding new player\n";
 							// find color and starting position that aren't being used
 							sf::Color c;
 							for (auto col : colors)
