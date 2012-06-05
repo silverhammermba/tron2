@@ -17,6 +17,7 @@ using std::endl;
 
 void set_volume(Cycle *p1, Cycle *p2, sf::Music *track);
 int get_joystick(sf::Event & event);
+bool input_is (sf::Event & event, int keycode, int joybutton);
 
 int main(int argc, char *argv[])
 {
@@ -57,6 +58,7 @@ int main(int argc, char *argv[])
 
 	std::list<Cycle *> player;
 
+	// TODO dynamically assign these?
 	std::array<v2f, 4> starts
 	{
 		v2f(105.f, 300.f),
@@ -86,17 +88,6 @@ int main(int argc, char *argv[])
 		sf::Color(0, 100, 0),
 		sf::Color(150, 150, 150)
 	};
-
-	/*
-	player.push_back(new Cycle(v2f(695.f, 300.f), 180.f, sf::Color(255, 0, 0)));
-	player.push_back(new Cycle(v2f(105.f, 300.f), 0.f, sf::Color(0, 255, 0)));
-	if (PLAYERS > 2)
-	{
-		player.push_back(new Cycle(v2f(400.f, 5.f), 90.f, sf::Color(0, 0, 255)));
-		if (PLAYERS > 3)
-			player.push_back(new Cycle(v2f(400.f, 595.f), 270.f, sf::Color(255, 0, 255)));
-	}
-	*/
 
 	// (shitty) MUSIC!!!
 	/*
@@ -157,6 +148,7 @@ int main(int argc, char *argv[])
 
 	while (window.isOpen())
 	{
+		// process input
 		while (window.pollEvent(event))
 		{
 			if (event.type == sf::Event::Closed)
@@ -184,8 +176,7 @@ int main(int argc, char *argv[])
 			if (paused)
 			{
 				// add players
-				if ((event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Return)
-				      || (event.type == sf::Event::JoystickButtonPressed && event.joystickButton.button == 7))
+				if (input_is(event, sf::Keyboard::Return, 7))
 				{
 					int joystick = get_joystick(event);
 
@@ -252,8 +243,7 @@ int main(int argc, char *argv[])
 					}
 				}
 				// remove/unready players
-				else if ((event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Back)
-				      || (event.type == sf::Event::JoystickButtonPressed && event.joystickButton.button == 6))
+				else if (input_is(event, sf::Keyboard::Back, 6))
 				{
 					int joystick = get_joystick(event);
 
@@ -270,8 +260,7 @@ int main(int argc, char *argv[])
 					}
 				}
 				// change colors
-				else if ((event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::C)
-				      || (event.type == sf::Event::JoystickButtonPressed && event.joystickButton.button == 9))
+				else if (input_is(event, sf::Keyboard::C, 5))
 				{
 					int joystick = get_joystick(event);
 
@@ -484,4 +473,9 @@ int get_joystick(sf::Event & event)
 		return -1;
 	else if (event.type == sf::Event::JoystickButtonPressed)
 		return event.joystickButton.joystickId;
+}
+
+bool input_is (sf::Event & event, int keycode, int joybutton)
+{
+	return (event.type == sf::Event::KeyPressed && event.key.code == keycode) || (event.type == sf::Event::JoystickButtonPressed && event.joystickButton.button == joybutton);
 }
