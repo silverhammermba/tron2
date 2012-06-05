@@ -16,13 +16,12 @@ using std::cerr;
 using std::endl;
 
 void set_volume(Cycle *p1, Cycle *p2, sf::Music *track);
+int get_joystick(sf::Event & event);
 
 int main(int argc, char *argv[])
 {
-	//int PLAYERS = atoi(argv[1]);
-
-	sf::Clock clock;
-	sf::Clock fclock;
+	sf::Clock fclock; // frame fclock
+	sf::Clock clock; // accumulative clock
 
 	sf::Text fps;
 	fps.setCharacterSize(12);
@@ -179,20 +178,16 @@ int main(int argc, char *argv[])
 				for (auto p : player) p->set_text_pos(view.getCenter());
 				winner.setPosition(view.getCenter());
 			}
+			// quit
+			if (event.type == sf::Event::KeyReleased && event.key.code == sf::Keyboard::Escape)
+				window.close();
 			if (paused)
 			{
-				// quit
-				if (event.type == sf::Event::KeyReleased && event.key.code == sf::Keyboard::Escape)
-					window.close();
 				// add players
-				else if ((event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Return)
+				if ((event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Return)
 				      || (event.type == sf::Event::JoystickButtonPressed && event.joystickButton.button == 7))
 				{
-					int joystick;
-					if (event.type == sf::Event::KeyPressed)
-						joystick = -1;
-					else
-						joystick = event.joystickButton.joystickId;
+					int joystick = get_joystick(event);
 
 					// check if the controller is taken
 					bool taken = false;
@@ -256,21 +251,20 @@ int main(int argc, char *argv[])
 						}
 					}
 				}
-				// remove players
+				// remove/unready players
 				else if ((event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Back)
 				      || (event.type == sf::Event::JoystickButtonPressed && event.joystickButton.button == 6))
 				{
-					int joystick;
-					if (event.type == sf::Event::KeyPressed)
-						joystick = -1;
-					else
-						joystick = event.joystickButton.joystickId;
+					int joystick = get_joystick(event);
 
 					for (auto p : player)
 					{
 						if (p->joystick == joystick)
 						{
-							player.remove(p);
+							if (p->ready)
+								p->set_ready(false);
+							else
+								player.remove(p);
 							break;
 						}
 					}
@@ -279,12 +273,7 @@ int main(int argc, char *argv[])
 				else if ((event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::C)
 				      || (event.type == sf::Event::JoystickButtonPressed && event.joystickButton.button == 9))
 				{
-					// TODO DRY OFF
-					int joystick;
-					if (event.type == sf::Event::KeyPressed)
-						joystick = -1;
-					else
-						joystick = event.joystickButton.joystickId;
+					int joystick = get_joystick(event);
 
 					for (auto p : player)
 					{
@@ -329,11 +318,11 @@ int main(int argc, char *argv[])
 			}
 		}
 
-		float time = clock.getElapsedTime().asSeconds();
-		clock.restart();
+		float time = fclock.getElapsedTime().asSeconds();
+		fclock.restart();
 
 		// slow motion start
-		float stime = fclock.getElapsedTime().asSeconds();
+		float stime = clock.getElapsedTime().asSeconds();
 		timescale = std::min(3.f, stime) / 3.f;
 
 		if (paused)
@@ -351,7 +340,7 @@ int main(int argc, char *argv[])
 			{
 				paused = false;
 				for (auto p : player) p->reset();
-				fclock.restart();
+				clock.restart();
 			}
 		}
 		else
@@ -487,4 +476,12 @@ void set_volume(Cycle *p1, Cycle *p2, sf::Music *track)
 {
 	float vol = 100.f - clamp<float>(0.f, v2dist<float>(p1->get_edge().getPosition(), p2->get_edge().getPosition()), 300.f) / 3.f;
 	track->setVolume(vol);
+}
+
+int get_joystick(sf::Event & event)
+{
+	if (event.type == sf::Event::KeyPressed)
+		return -1;
+	else if (event.type == sf::Event::JoystickButtonPressed)
+		return event.joystickButton.joystickId;
 }

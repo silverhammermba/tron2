@@ -17,11 +17,11 @@ const float Cycle::DECAY = Cycle::Cycle::SPEED / 2.f;
 Cycle::Cycle(const v2f & pos, const float dir, const sf::Color & clr, int j) :
 	start(pos), color(clr), edge(v2f(1.f, Cycle::WIDTH)), ready_text("READY", sf::Font::getDefaultFont(), 16), score_text("", sf::Font::getDefaultFont(), 16)
 {
-	pending = -1.f;
-	backitup = 0.f;
+	pending = -1.f; // store turns
+	backitup = 0.f; // distance to back up after collision
 	score = 0;
 	joystick = j;
-	startd = dir;
+	startd = dir; // starting direction
 
 	edge.setOrigin(0.5f, Cycle::WIDTH / 2.f);
 	edge.setFillColor(sf::Color(255.f, 255.f, 255.f));
@@ -30,6 +30,7 @@ Cycle::Cycle(const v2f & pos, const float dir, const sf::Color & clr, int j) :
 	ready_text.setOrigin(size.width / 2, size.height / 2);
 	ready_text.setColor(sf::Color(0, 0, 0));
 
+	// get ready for first round
 	reset();
 }
 
@@ -41,10 +42,13 @@ Cycle::~Cycle()
 // move and check for self-collision
 void Cycle::move_forward(float time)
 {
+	// move forward
 	trail.front()->setSize(trail.front()->getSize() + v2f(speed * time, 0));
 	set_edge_pos();
 	sf::FloatRect head = edge.getGlobalBounds();
 	float dir = trail.front()->getRotation();
+	// check for self-collision
+	// it's not possible to collide with the first three segments
 	for (int i = 3; i < trail.size(); i++)
 	{
 		sf::FloatRect rect = trail[i]->getGlobalBounds();
@@ -65,12 +69,14 @@ void Cycle::move_forward(float time)
 	}
 }
 
+// update position of leading edge
 void Cycle::set_edge_pos()
 {
 	float dir = trail.front()->getRotation() * M_PI / 180.f;
 	edge.setPosition(trail.front()->getPosition() + v2f(std::cos(dir) , std::sin(dir)) * (trail.front()->getSize().x - Cycle::WIDTH / 2.f));
 }
 
+// shorten the trail
 // returns true if the last tail segment needs to be removed
 bool Cycle::shorten_trail(float time)
 {
@@ -85,10 +91,12 @@ bool Cycle::shorten_trail(float time)
 	return trail.back()->getSize().x <= Cycle::WIDTH;
 }
 
+// move the player
 void Cycle::move(float time)
 {
 	if (!crashed)
 	{
+		// check for stored turn
 		if (pending >= 0.f)
 			turn(pending);
 		move_forward(time);
@@ -106,7 +114,7 @@ void Cycle::turn(float dir)
 	if (!crashed)
 	{
 		float org = trail.front()->getRotation();
-		// TODO smarter way to do this? also, only restrict turns for 180s
+		// TODO allow quick doglegs
 		if (perpendicular(org, dir))
 		{
 			if (trail.front()->getSize().x > 2 * Cycle::WIDTH)
@@ -116,23 +124,24 @@ void Cycle::turn(float dir)
 				v2f pos (trail.front()->getPosition() + shift);
 
 				new_segment(pos, dir);
+				// clear any stored turn
 				pending = -1.f;
 			}
+			// store the turn for later
 			else
-			{
 				pending = dir;
-			}
 		}
 	}
 }
 
+// check for a collision between this and cycle
 bool Cycle::check_collision(Cycle & cycle)
 {
 	if (crashed || &cycle == this) return false;
 	sf::FloatRect head = edge.getGlobalBounds();
 	sf::FloatRect other = cycle.get_edge().getGlobalBounds();
-	// edge case: perpendicular head-on collision
 	float dir = trail.front()->getRotation();
+	// edge case: perpendicular head-on collision
 	if (head.intersects(other))
 	{
 		float oth = cycle.get_trail().front()->getRotation();
@@ -194,16 +203,16 @@ bool Cycle::check_collision(Cycle & cycle)
 	return false;
 }
 
+// check if the player is in bounds
 bool Cycle::in(const sf::RectangleShape & bounds)
 {
 	sf::FloatRect head = edge.getGlobalBounds();
 	sf::FloatRect bound = bounds.getGlobalBounds();
 	if (head.intersects(bound))
-	{
 		return true;
-	}
 	else
 	{
+		// determine amount to back up
 		float dir = edge.getRotation();
 		float dist;
 		if (dir == 0.f)
@@ -220,14 +229,15 @@ bool Cycle::in(const sf::RectangleShape & bounds)
 	}
 }
 
+// crash the player where dist is the amount of penetration
+// (to be backed up later)
 void Cycle::crash(float dist)
 {
-	// back up to point of collision
-	// TODO adjust wiggle distance?
 	backitup = dist;
 	crashed = true;
 }
 
+// back up after a collision
 void Cycle::backup()
 {
 	if (crashed)
@@ -332,6 +342,7 @@ void Cycle::new_segment(const v2f & pos, float dir)
 	edge.setRotation(dir);
 }
 
+// setter for ready status
 void Cycle::set_ready(bool val)
 {
 	ready = val;
@@ -341,6 +352,7 @@ void Cycle::set_ready(bool val)
 		ready_text.setColor(sf::Color(0, 0, 0));
 }
 
+// change trail color
 void Cycle::set_color(const sf::Color & col)
 {
 	color = col;
@@ -348,6 +360,8 @@ void Cycle::set_color(const sf::Color & col)
 		segment->setFillColor(color);
 }
 
+// track deaths per-player
+// TODO display somehow
 void Cycle::add_death(Cycle *cycle)
 {
 	if (deaths.count(cycle))
@@ -356,6 +370,7 @@ void Cycle::add_death(Cycle *cycle)
 		deaths[cycle] = 1;
 }
 
+// increment score
 void Cycle::scored()
 {
 	score++;
@@ -364,6 +379,7 @@ void Cycle::scored()
 	score_text.setString(text.str());
 }
 
+// update position of ready/score text using center of view
 void Cycle::set_text_pos(const v2f & center)
 {
 	v2f new_pos {(start.x + center.x) / 2.f, (start.y + center.y) / 2.f};
