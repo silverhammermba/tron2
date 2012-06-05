@@ -17,6 +17,8 @@ const float Cycle::DECAY = Cycle::Cycle::SPEED / 2.f;
 Cycle::Cycle(const v2f & pos, const float dir, const sf::Color & clr, int j) :
 	start(pos), color(clr), edge(v2f(1.f, Cycle::WIDTH)), ready_text("READY", sf::Font::getDefaultFont(), 16), score_text("", sf::Font::getDefaultFont(), 16)
 {
+	//pending_turn = -1.f;
+	backitup = 0.f;
 	score = 0;
 	joystick = j;
 	startd = dir;
@@ -26,9 +28,7 @@ Cycle::Cycle(const v2f & pos, const float dir, const sf::Color & clr, int j) :
 
 	sf::FloatRect size = ready_text.getGlobalBounds();
 	ready_text.setOrigin(size.width / 2, size.height / 2);
-	ready_text.setPosition(pos);
 	ready_text.setColor(sf::Color(0, 0, 0));
-	score_text.setPosition(v2f(pos.x + 20, pos.y));
 
 	reset();
 }
@@ -89,6 +89,13 @@ void Cycle::move(float time)
 {
 	if (!crashed)
 	{
+		/*
+		if (pending_turn >= 0.f)
+		{
+			turn(pending_turn);
+			pending_turn = -1.f;
+		}
+		*/
 		move_forward(time);
 	}
 	if (shorten_trail(time) && trail.size() > 1)
@@ -113,6 +120,12 @@ void Cycle::turn(float dir)
 
 			new_segment(pos, dir);
 		}
+		/*
+		else
+		{
+			pending_turn = dir;
+		}
+		*/
 	}
 }
 
@@ -186,13 +199,25 @@ bool Cycle::check_collision(Cycle & cycle)
 
 bool Cycle::in(const sf::RectangleShape & bounds)
 {
-	if (edge.getGlobalBounds().intersects(bounds.getGlobalBounds()))
+	sf::FloatRect head = edge.getGlobalBounds();
+	sf::FloatRect bound = bounds.getGlobalBounds();
+	if (head.intersects(bound))
 	{
 		return true;
 	}
 	else
 	{
-		crash();
+		float dir = edge.getRotation();
+		float dist;
+		if (dir == 0.f)
+			dist = head.left + head.width - bound.left - bound.width;
+		else if (dir == 90.f)
+			dist = head.top + head.height - bound.top - bound.height;
+		else if (dir == 180.f)
+			dist = bound.left - head.left;
+		else if (dir == 270.f)
+			dist = bound.top - head.top;
+		crash(dist);
 		add_death(nullptr);
 		return false;
 	}
@@ -202,9 +227,18 @@ void Cycle::crash(float dist)
 {
 	// back up to point of collision
 	// TODO adjust wiggle distance?
-	trail.front()->setSize(trail.front()->getSize() - v2f(dist, 0));
-	set_edge_pos();
+	backitup = dist;
 	crashed = true;
+}
+
+void Cycle::backup()
+{
+	if (crashed)
+	{
+		trail.front()->setSize(trail.front()->getSize() - v2f(backitup, 0));
+		set_edge_pos();
+		backitup = 0.f;
+	}
 }
 
 // draw the player on the screen
@@ -216,9 +250,6 @@ void Cycle::draw(sf::RenderWindow & window, bool paused) const
 	{
 		window.draw(ready_text);
 		window.draw(score_text);
-		for (auto pt : deaths)
-		{
-		}
 	}
 }
 
@@ -334,4 +365,11 @@ void Cycle::scored()
 	std::ostringstream text;
 	text << score;
 	score_text.setString(text.str());
+}
+
+void Cycle::set_text_pos(const v2f & center)
+{
+	v2f new_pos {(start.x + center.x) / 2.f, (start.y + center.y) / 2.f};
+	ready_text.setPosition(new_pos);
+	score_text.setPosition(new_pos + v2f(20, 0));
 }

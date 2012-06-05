@@ -11,6 +11,7 @@ class Cycle
 {
 	float speed;
 	float decay;
+	float backitup;
 	std::deque<sf::RectangleShape *> trail;
 	sf::RectangleShape edge;
 	sf::Text ready_text;
@@ -50,6 +51,8 @@ public:
 	void set_color(const sf::Color & col);
 	void add_death(Cycle *cycle);
 	void scored();
+	void set_text_pos(const v2f & center);
+	void backup();
 };
 
 #endif

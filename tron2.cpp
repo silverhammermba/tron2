@@ -74,16 +74,18 @@ int main(int argc, char *argv[])
 		270.f
 	};
 
-	std::array<sf::Color, 8> colors
+	std::array<sf::Color, 10> colors
 	{
 		sf::Color(255, 0, 0),
 		sf::Color(0, 255, 0),
 		sf::Color(0, 0, 255),
 		sf::Color(255, 0, 255),
+		sf::Color(127, 0, 255),
 		sf::Color(255, 255, 0),
-		sf::Color(255, 127, 0),
+		sf::Color(230, 127, 0),
 		sf::Color(0, 255, 255),
-		sf::Color(0, 0, 0)
+		sf::Color(0, 100, 0),
+		sf::Color(150, 150, 150)
 	};
 
 	/*
@@ -174,6 +176,7 @@ int main(int argc, char *argv[])
 					view.setSize(v2f((600.f * size.x) / size.y, 600.f));
 					window.setView(view);
 				}
+				for (auto p : player) p->set_text_pos(view.getCenter());
 				winner.setPosition(view.getCenter());
 			}
 			if (paused)
@@ -247,6 +250,7 @@ int main(int argc, char *argv[])
 								i++;
 							}
 							player.push_back(new Cycle(s, startds[i], c, joystick));
+							player.back()->set_text_pos(view.getCenter());
 						}
 					}
 				}
@@ -271,7 +275,7 @@ int main(int argc, char *argv[])
 				}
 				// change colors
 				else if ((event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::C)
-				      || (event.type == sf::Event::JoystickButtonPressed && event.joystickButton.button == 0))
+				      || (event.type == sf::Event::JoystickButtonPressed && event.joystickButton.button == 9))
 				{
 					// TODO DRY OFF
 					int joystick;
@@ -366,6 +370,9 @@ int main(int argc, char *argv[])
 			}
 			for (auto p : player)
 				p->in(bounds);
+
+			for (auto p : player)
+				p->backup();
 
 			/* adjust track volume */
 			// TODO better way? need to allocate music better
