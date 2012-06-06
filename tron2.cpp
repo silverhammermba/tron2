@@ -351,6 +351,7 @@ int main(int argc, char *argv[])
 			for (auto p : player)
 				p->in(bounds);
 
+			// TODO visual bug when players collide head-on
 			for (auto p : player)
 				p->backup();
 

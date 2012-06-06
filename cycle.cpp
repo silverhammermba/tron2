@@ -231,6 +231,7 @@ bool Cycle::in(const sf::RectangleShape & bounds)
 
 // crash the player where dist is the amount of penetration
 // (to be backed up later)
+// TODO track life time
 void Cycle::crash(float dist)
 {
 	backitup = dist;
