@@ -325,7 +325,7 @@ int main(int argc, char *argv[])
 					break;
 				}
 			}
-			if (all_ready)
+			if (all_ready && player.size() > 1)
 			{
 				paused = false;
 				for (auto p : player) p->reset();
