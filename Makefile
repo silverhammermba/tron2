@@ -1,7 +1,7 @@
 all: main
 
 main: main.o player.o cycle.o helpers.o
-	g++ -o launch main.o player.o cycle.o helpers.o -lsfml-graphics -lsfml-window -lsfml-audio -lsfml-system
+	g++ -o launch main.o player.o cycle.o helpers.o -lsfml-graphics -lsfml-window -lsfml-system
 
 main.o: main.cpp
 	g++ -c main.cpp -std=c++11
