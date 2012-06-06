@@ -15,7 +15,7 @@ using std::cin;
 using std::cerr;
 using std::endl;
 
-void set_volume(Cycle *p1, Cycle *p2, sf::Music *track);
+//void set_volume(Cycle *p1, Cycle *p2, sf::Music *track);
 int get_joystick(sf::Event & event);
 bool input_is (sf::Event & event, int keycode, int joybutton);
 
@@ -462,11 +462,13 @@ int main(int argc, char *argv[])
 	return EXIT_SUCCESS;
 }
 
+/*
 void set_volume(Cycle *p1, Cycle *p2, sf::Music *track)
 {
 	float vol = 100.f - clamp<float>(0.f, v2dist<float>(p1->get_edge().getPosition(), p2->get_edge().getPosition()), 300.f) / 3.f;
 	track->setVolume(vol);
 }
+*/
 
 int get_joystick(sf::Event & event)
 {

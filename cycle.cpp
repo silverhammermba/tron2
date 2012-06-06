@@ -12,7 +12,7 @@ using std::endl;
 
 const float Cycle::WIDTH = 8.5f;
 const float Cycle::SPEED = 250.f;
-const float Cycle::DECAY = Cycle::Cycle::SPEED / 2.f;
+const float Cycle::DECAY = Cycle::SPEED / 2.f;
 
 Cycle::Cycle(const v2f & pos, const float dir, const sf::Color & clr, int j) :
 	start(pos), color(clr), edge(v2f(1.f, Cycle::WIDTH)), ready_text("READY", sf::Font::getDefaultFont(), 16), score_text("", sf::Font::getDefaultFont(), 16)
