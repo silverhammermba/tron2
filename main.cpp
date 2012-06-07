@@ -9,12 +9,6 @@
 #include "cycle.hpp"
 #include "helpers.hpp"
 
-#define _USE_MATH_DEFINES
-
-#ifndef M_PI
-#define M_PI 3.141592653589793238462643
-#endif
-
 using std::cin;
 using std::cerr;
 using std::endl;

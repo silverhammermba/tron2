@@ -4,6 +4,12 @@
 #include <cmath>
 #include <SFML/System.hpp>
 
+#define _USE_MATH_DEFINES
+
+#ifndef M_PI
+#define M_PI 3.141592653589793238462643
+#endif
+
 typedef sf::Vector2f v2f;
 
 bool perpendicular(float x, float y);
