@@ -11,6 +11,10 @@
 
 #define _USE_MATH_DEFINES
 
+#ifndef M_PI
+#define M_PI 3.141592653589793238462643
+#endif
+
 using std::cin;
 using std::cerr;
 using std::endl;
@@ -43,10 +47,10 @@ int main(int argc, char *argv[])
 	sf::RenderWindow window
 	{
 		sf::VideoMode(800, 600, 32),
-		"Light Cycles",
-		sf::Style::Titlebar
+		"Light Cycles"
 	};
 	window.setVerticalSyncEnabled(false);
+	window.setFramerateLimit(120);
 
 	sf::View view (window.getView());
 
@@ -167,7 +171,9 @@ int main(int argc, char *argv[])
 					view.setSize(v2f((600.f * size.x) / size.y, 600.f));
 					window.setView(view);
 				}
-				for (auto p : player) p->set_text_pos(view.getCenter());
+				//for (auto p : player)
+				for (auto p = player.begin(); p != player.end(); p++)
+					(*p)->set_text_pos(view.getCenter());
 				winner.setPosition(view.getCenter());
 			}
 			// quit
@@ -182,12 +188,14 @@ int main(int argc, char *argv[])
 
 					// check if the controller is taken
 					bool taken = false;
-					for (auto p : player)
+					
+					//for (auto p : player)
+					for (auto p = player.begin(); p != player.end(); p++)
 					{
-						if (p->joystick == joystick)
+						if ((*p)->joystick == joystick)
 						{
 							//cerr << "Player taken, readying\n";
-							p->set_ready(true);
+							(*p)->set_ready(true);
 							taken = true;
 							break;
 						}
@@ -200,12 +208,14 @@ int main(int argc, char *argv[])
 							//cerr << "Adding new player\n";
 							// find color and starting position that aren't being used
 							sf::Color c;
-							for (auto col : colors)
+							//for (auto col : colors)
+							for (auto col = colors.begin(); col != colors.end(); col++)
 							{
 								bool taken = false;
-								for (auto p : player)
+								//for (auto p : player)
+								for (auto p = player.begin(); p != player.end(); p++)
 								{
-									if (p->color == col)
+									if ((*p)->color == *col)
 									{
 										taken = true;
 										break;
@@ -213,18 +223,20 @@ int main(int argc, char *argv[])
 								}
 								if (!taken)
 								{
-									c = col;
+									c = *col;
 									break;
 								}
 							}
 							v2f s;
 							int i = 0; // TODO HACKY AS BALLS
-							for (auto strt : starts)
+							//for (auto strt : starts)
+							for (auto strt = starts.begin(); strt != starts.end(); strt++)
 							{
 								bool taken = false;
-								for (auto p : player)
+								//for (auto p : player)
+								for (auto p = player.begin(); p != player.end(); p++)
 								{
-									if (p->start == strt)
+									if ((*p)->start == *strt)
 									{
 										taken = true;
 										break;
@@ -232,7 +244,7 @@ int main(int argc, char *argv[])
 								}
 								if (!taken)
 								{
-									s = strt;
+									s = *strt;
 									break;
 								}
 								i++;
@@ -247,14 +259,15 @@ int main(int argc, char *argv[])
 				{
 					int joystick = get_joystick(event);
 
-					for (auto p : player)
+					//for (auto p : player)
+					for (auto p = player.begin(); p != player.end(); p++)
 					{
-						if (p->joystick == joystick)
+						if ((*p)->joystick == joystick)
 						{
-							if (p->ready)
-								p->set_ready(false);
+							if ((*p)->ready)
+								(*p)->set_ready(false);
 							else
-								player.remove(p);
+								player.remove(*p);
 							break;
 						}
 					}
@@ -264,16 +277,17 @@ int main(int argc, char *argv[])
 				{
 					int joystick = get_joystick(event);
 
-					for (auto p : player)
+					//for (auto p : player)
+					for (auto p = player.begin(); p != player.end(); p++)
 					{
-						if (p->joystick == joystick)
+						if ((*p)->joystick == joystick)
 						{
 							int i;
 							int l = colors.size();
 							// find current color
 							for (i = 0; i < l; i++)
 							{
-								if (colors[i] == p->color) break;
+								if (colors[i] == (*p)->color) break;
 							}
 							int col = i;
 							i++;
@@ -281,9 +295,10 @@ int main(int argc, char *argv[])
 							for (; i % l != col; i++)
 							{
 								bool taken = false;
-								for (auto q : player)
+								//for (auto q : player)
+								for (auto q = player.begin(); q != player.end(); q++)
 								{
-									if (q->color == colors[i % l])
+									if ((*q)->color == colors[i % l])
 									{
 										taken = true;
 										break;
@@ -291,7 +306,7 @@ int main(int argc, char *argv[])
 								}
 								if (!taken)
 								{
-									p->set_color(colors[i % l]);
+									(*p)->set_color(colors[i % l]);
 									break;
 								}
 							}
@@ -302,8 +317,9 @@ int main(int argc, char *argv[])
 			}
 			else
 			{
-				for (auto p : player)
-					p->bind(event);
+				//for (auto p : player)
+				for (auto p = player.begin(); p != player.end(); p++)
+					(*p)->bind(event);
 			}
 		}
 
@@ -317,9 +333,10 @@ int main(int argc, char *argv[])
 		if (paused)
 		{
 			bool all_ready {true};
-			for (auto p : player)
+			//for (auto p : player)
+			for (auto p = player.begin(); p != player.end(); p++)
 			{
-				if (!p->ready)
+				if (!(*p)->ready)
 				{
 					all_ready = false;
 					break;
@@ -328,32 +345,38 @@ int main(int argc, char *argv[])
 			if (all_ready && player.size() > 1)
 			{
 				paused = false;
-				for (auto p : player) p->reset();
+				//for (auto p : player)
+				for (auto p = player.begin(); p != player.end(); p++)
+					(*p)->reset();
 				clock.restart();
 			}
 		}
 		else
 		{
-			for (auto p : player)
-				p->move(time * timescale);
+			//for (auto p : player)
+			for (auto p = player.begin(); p != player.end(); p++)
+				(*p)->move(time * timescale);
 			// TODO better way?
-			for (auto p1 : player)
+			//for (auto p1 : player)
+			for (auto p1 = player.begin(); p1 != player.end(); p1++)
 			{
-				for (auto p2 : player)
+				for (auto p2 = player.begin(); p2 != player.end(); p2++)
 				{
-					if (p1 != p2)
+					if (*p1 != *p2)
 					{
-						p1->check_collision(*p2);
-						p2->check_collision(*p1);
+						(*p1)->check_collision(**p2);
+						(*p2)->check_collision(**p1);
 					}
 				}
 			}
-			for (auto p : player)
-				p->in(bounds);
+			//for (auto p : player)
+			for (auto p = player.begin(); p != player.end(); p++)
+				(*p)->in(bounds);
 
 			// TODO visual bug when players collide head-on
-			for (auto p : player)
-				p->backup();
+			//for (auto p : player)
+			for (auto p = player.begin(); p != player.end(); p++)
+				(*p)->backup();
 
 			/* adjust track volume */
 			// TODO better way? need to allocate music better
@@ -385,31 +408,37 @@ int main(int argc, char *argv[])
 			win_s.str("");
 
 			int living = 0;
-			for(auto p : player)
-				if (!p->crashed) living++;
+			//for(auto p : player)
+			for (auto p = player.begin(); p != player.end(); p++)
+				if (!(*p)->crashed) living++;
 
 			if (living == 0)
 			{
 				win_s << "DRAW";
 				winner.setColor(sf::Color(255, 255, 255));
 				paused = true;
-				for (auto p : player) p->set_ready(false);
+				//for (auto p : player)
+				for (auto p = player.begin(); p != player.end(); p++)
+					(*p)->set_ready(false);
 			}
 			else if (living == 1)
 			{
-				for (auto p : player)
+				//for (auto p : player)
+				for (auto p = player.begin(); p != player.end(); p++)
 				{
-					if (!p->crashed)
+					if (!(*p)->crashed)
 					{
-						winner.setColor(p->color);
-						p->scored();
-						//p->crashed = true;
+						winner.setColor((*p)->color);
+						(*p)->scored();
+						//(*p)->crashed = true;
 						break;
 					}
 				}
 				win_s << "WINNER!";
 				paused = true;
-				for (auto p : player) p->set_ready(false);
+				//for (auto p : player)
+				for (auto p = player.begin(); p != player.end(); p++)
+					(*p)->set_ready(false);
 			}
 
 			/*
@@ -449,8 +478,9 @@ int main(int argc, char *argv[])
 
 		window.draw(bounds);
 
-		for (auto p : player)
-			p->draw(window, paused);
+		//for (auto p : player)
+		for (auto p = player.begin(); p != player.end(); p++)
+			(*p)->draw(window, paused);
 
 		window.draw(fps);
 		window.draw(vol);
