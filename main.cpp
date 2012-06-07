@@ -16,6 +16,7 @@ using std::endl;
 //void set_volume(Cycle *p1, Cycle *p2, sf::Music *track);
 int get_joystick(sf::Event & event);
 bool input_is (sf::Event & event, int keycode, int joybutton);
+bool set_up (sf::RenderWindow & window, sf::View & view, sf::Text & winner, std::list<Cycle *> & player);
 
 int main(int argc, char *argv[])
 {
@@ -144,6 +145,7 @@ int main(int argc, char *argv[])
 
 	float timescale = 1.f;
 
+	set_up(window, view, winner, player);
 	while (window.isOpen())
 	{
 		// process input
@@ -153,22 +155,7 @@ int main(int argc, char *argv[])
 				window.close();
 			else if (event.type == sf::Event::Resized)
 			{
-				sf::Vector2u size = window.getSize();
-				float prop = float (size.x) / size.y;
-				if (size.x * 3 < size.y * 4)
-				{
-					view.setSize(v2f(800, (800.f * size.y) / size.x));
-					window.setView(view);
-				}
-				else if (size.x * 3 > size.y * 4)
-				{
-					view.setSize(v2f((600.f * size.x) / size.y, 600.f));
-					window.setView(view);
-				}
-				//for (auto p : player)
-				for (auto p = player.begin(); p != player.end(); p++)
-					(*p)->set_text_pos(view.getCenter());
-				winner.setPosition(view.getCenter());
+				set_up(window, view, winner, player);
 			}
 			// quit
 			if (event.type == sf::Event::KeyReleased && event.key.code == sf::Keyboard::Escape)
@@ -505,4 +492,24 @@ int get_joystick(sf::Event & event)
 bool input_is (sf::Event & event, int keycode, int joybutton)
 {
 	return (event.type == sf::Event::KeyPressed && event.key.code == keycode) || (event.type == sf::Event::JoystickButtonPressed && event.joystickButton.button == joybutton);
+}
+
+bool set_up (sf::RenderWindow & window, sf::View & view, sf::Text & winner, std::list<Cycle *> & player)
+{
+	sf::Vector2u size = window.getSize();
+	float prop = float (size.x) / size.y;
+	if (size.x * 3 < size.y * 4)
+	{
+		view.setSize(v2f(800, (800.f * size.y) / size.x));
+		window.setView(view);
+	}
+	else if (size.x * 3 > size.y * 4)
+	{
+		view.setSize(v2f((600.f * size.x) / size.y, 600.f));
+		window.setView(view);
+	}
+	//for (auto p : player)
+	for (auto p = player.begin(); p != player.end(); p++)
+		(*p)->set_text_pos(view.getCenter());
+	winner.setPosition(view.getCenter());
 }
