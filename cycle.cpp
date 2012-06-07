@@ -225,7 +225,7 @@ bool Cycle::in(const sf::RectangleShape & bounds)
 		else if (dir == 270.f)
 			dist = bound.top - head.top;
 		crash(dist);
-		add_death(nullptr);
+		add_death(NULL);
 		return false;
 	}
 }
