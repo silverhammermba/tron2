@@ -9,6 +9,16 @@
 #include "cycle.hpp"
 #include "helpers.hpp"
 
+// big TODO list
+// minor bugs:
+// tail moves after colliding with it
+// both players back up after a head-on collision
+//
+// features to add:
+// display cause-of-death count for each player
+// sub-controls for more players
+// dynamically assign starting positions
+
 using std::cin;
 using std::cerr;
 using std::endl;
@@ -16,7 +26,7 @@ using std::endl;
 //void set_volume(Cycle *p1, Cycle *p2, sf::Music *track);
 int get_joystick(sf::Event & event);
 bool input_is (sf::Event & event, int keycode, int joybutton);
-bool set_up (sf::RenderWindow & window, sf::View & view, sf::Text & winner, std::list<Cycle *> & player);
+void set_up (sf::RenderWindow & window, sf::View & view, sf::Text & winner, std::list<Cycle *> & player);
 
 int main(int argc, char *argv[])
 {
@@ -494,7 +504,7 @@ bool input_is (sf::Event & event, int keycode, int joybutton)
 	return (event.type == sf::Event::KeyPressed && event.key.code == keycode) || (event.type == sf::Event::JoystickButtonPressed && event.joystickButton.button == joybutton);
 }
 
-bool set_up (sf::RenderWindow & window, sf::View & view, sf::Text & winner, std::list<Cycle *> & player)
+void set_up (sf::RenderWindow & window, sf::View & view, sf::Text & winner, std::list<Cycle *> & player)
 {
 	sf::Vector2u size = window.getSize();
 	float prop = float (size.x) / size.y;
