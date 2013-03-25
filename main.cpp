@@ -23,6 +23,8 @@ using std::cin;
 using std::cerr;
 using std::endl;
 
+sf::Font font;
+
 //void set_volume(Cycle *p1, Cycle *p2, sf::Music *track);
 int get_joystick(sf::Event & event);
 bool input_is (sf::Event & event, int keycode, int joybutton);
@@ -30,6 +32,7 @@ void set_up (sf::RenderWindow & window, sf::View & view, sf::Text & winner, std:
 
 int main(int argc, char *argv[])
 {
+	font.loadFromFile("/usr/share/fonts/TTF/DejaVuSans.ttf");
 	sf::Clock fclock; // frame fclock
 	sf::Clock clock; // accumulative clock
 
@@ -240,13 +243,13 @@ int main(int argc, char *argv[])
 								}
 								i++;
 							}
-							player.push_back(new Cycle(s, startds[i], c, joystick));
+							player.push_back(new Cycle(s, startds[i], c, font, joystick));
 							player.back()->set_text_pos(view.getCenter());
 						}
 					}
 				}
 				// remove/unready players
-				else if (input_is(event, sf::Keyboard::Back, 6))
+				else if (input_is(event, sf::Keyboard::BackSpace, 6))
 				{
 					int joystick = get_joystick(event);
 

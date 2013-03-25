@@ -32,7 +32,7 @@ public:
 	static const float SPEED;
 	static const float DECAY;
 
-	Cycle(const v2f & pos, const float dir, const sf::Color & clr, int j = -1);
+	Cycle(const v2f & pos, const float dir, const sf::Color & clr, sf::Font& font, int j = -1);
 	~Cycle();
 	const std::deque<sf::RectangleShape *> & get_trail() const { return trail; }
 	const sf::RectangleShape & get_edge() const { return edge; }

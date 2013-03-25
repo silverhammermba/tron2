@@ -14,8 +14,8 @@ const float Cycle::WIDTH = 8.5f;
 const float Cycle::SPEED = 250.f;
 const float Cycle::DECAY = Cycle::SPEED / 2.f;
 
-Cycle::Cycle(const v2f & pos, const float dir, const sf::Color & clr, int j) :
-	start(pos), color(clr), edge(v2f(1.f, Cycle::WIDTH)), ready_text("READY", sf::Font::getDefaultFont(), 16), score_text("", sf::Font::getDefaultFont(), 16)
+Cycle::Cycle(const v2f & pos, const float dir, const sf::Color & clr, sf::Font& font, int j) :
+	start(pos), color(clr), edge(v2f(1.f, Cycle::WIDTH)), ready_text("READY", font, 16), score_text("", font, 16)
 {
 	pending = -1.f; // store turns
 	backitup = 0.f; // distance to back up after collision
@@ -314,7 +314,7 @@ void Cycle::bind(const sf::Event & event)
 			case sf::Keyboard::Return:
 				set_ready(true);
 				break;
-			case sf::Keyboard::Back:
+			case sf::Keyboard::BackSpace:
 				set_ready(false);
 				break;
 		}
