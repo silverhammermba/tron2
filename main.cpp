@@ -32,7 +32,7 @@ void set_up(sf::RenderWindow & window, sf::View & view, sf::Text & winner, std::
 
 int main(int argc, char *argv[])
 {
-	font.loadFromFile("/usr/share/fonts/TTF/DejaVuSans.ttf");
+	font.loadFromFile("font.ttf");
 	sf::Clock fclock; // frame fclock
 	sf::Clock clock; // accumulative clock
 
