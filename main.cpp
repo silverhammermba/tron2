@@ -44,7 +44,6 @@ int main(int argc, char *argv[])
 	sf::Text vol;
 	vol.setCharacterSize(12);
 	vol.setPosition(20.f, 50.f);
-	std::ostringstream vol_s;
 
 	sf::Text winner;
 	winner.setCharacterSize(24);
@@ -100,61 +99,6 @@ int main(int argc, char *argv[])
 		sf::Color(0, 100, 0),
 		sf::Color(150, 150, 150)
 	};
-
-	// (shitty) MUSIC!!!
-	/*
-	sf::Music bass;
-	sf::Music pian;
-	sf::Music elgt;
-	sf::Music psyn;
-	sf::Music rhds;
-	sf::Music synl;
-	sf::Music synp;
-
-	// TODO error check
-	bass.openFromFile("loops/Bass.wav");
-	pian.openFromFile("loops/Piano.wav");
-	elgt.openFromFile("loops/Electric_Guitar.wav");
-	psyn.openFromFile("loops/Panning_Synth.wav");
-	rhds.openFromFile("loops/Rhodes.wav");
-	synl.openFromFile("loops/Solo_Synth_Lead.wav");
-	synp.openFromFile("loops/Synth_Pad.wav");
-
-	bass.setLoop(true);
-	pian.setLoop(true);
-	elgt.setLoop(true);
-	psyn.setLoop(true);
-	rhds.setLoop(true);
-	synl.setLoop(true);
-	synp.setLoop(true);
-
-	bass.setVolume(0.f);
-	pian.setVolume(0.f);
-	elgt.setVolume(0.f);
-	psyn.setVolume(0.f);
-	rhds.setVolume(0.f);
-	synl.setVolume(0.f);
-	synp.setVolume(0.f);
-
-	bass.play();
-	pian.play();
-	elgt.play();
-	psyn.play();
-	rhds.play();
-	synl.play();
-	synp.play();
-
-	sf::Music *track[9];
-	// TODO reorder?
-	track[0] = &elgt;
-	// 3 player
-	track[1] = &synp;
-	track[4] = &psyn;
-	// 4 player
-	track[2] = &rhds;
-	track[5] = &synl;
-	track[8] = &pian;
-	*/
 
 	float timescale = 1.f;
 
@@ -358,33 +302,6 @@ int main(int argc, char *argv[])
 			for (auto p : player)
 				p->backup();
 
-			/* adjust track volume */
-			// TODO better way? need to allocate music better
-			/*
-			int i = 0;
-			for (auto it = player.begin(); it != player.end(); it++)
-			{
-				int j = 0;
-				for (auto jt = player.begin(); jt != player.end(); jt++)
-				{
-					if (i == 0 && j == 1)
-						set_volume(*it, *jt, &pian);
-					else if (i == 0 && j == 2)
-						set_volume(*it, *jt, &elgt);
-					else if (i == 0 && j == 3)
-						set_volume(*it, *jt, &psyn);
-					else if (i == 1 && j == 2)
-						set_volume(*it, *jt, &rhds);
-					else if (i == 1 && j == 3)
-						set_volume(*it, *jt, &synl);
-					else if (i == 2 && j == 3)
-						set_volume(*it, *jt, &synp);
-					j++;
-				}
-				i++;
-			}
-			*/
-
 			win_s.str("");
 
 			int living = 0;
@@ -417,18 +334,6 @@ int main(int argc, char *argv[])
 					p->set_ready(false);
 			}
 
-			/*
-			if (paused)
-			{
-				pian.setVolume(100.f);
-				elgt.setVolume(100.f);
-				psyn.setVolume(100.f);
-				rhds.setVolume(100.f);
-				synl.setVolume(100.f);
-				synp.setVolume(100.f);
-			}
-			*/
-
 			winner.setString(win_s.str());
 
 			sf::FloatRect size = winner.getGlobalBounds();
@@ -438,17 +343,6 @@ int main(int argc, char *argv[])
 		fps_s.str("");
 		fps_s << "FPS " << int (1.f / time);
 		fps.setString(fps_s.str());
-
-		vol_s.str("");
-		/*
-		vol_s << "Pian " << int (pian.getVolume()) << endl
-		      << "Elec " << int (elgt.getVolume()) << endl
-			  << "PanS " << int (psyn.getVolume()) << endl
-			  << "Rhod " << int (rhds.getVolume()) << endl
-			  << "Lead " << int (synl.getVolume()) << endl
-			  << "SPad " << int (synp.getVolume());
-		*/
-		vol.setString(vol_s.str());
 
 		window.clear(sf::Color(255, 255, 255));
 
@@ -466,14 +360,6 @@ int main(int argc, char *argv[])
 
 	return EXIT_SUCCESS;
 }
-
-/*
-void set_volume(Cycle *p1, Cycle *p2, sf::Music *track)
-{
-	float vol = 100.f - clamp<float>(0.f, v2dist<float>(p1->get_edge().getPosition(), p2->get_edge().getPosition()), 300.f) / 3.f;
-	track->setVolume(vol);
-}
-*/
 
 int get_joystick(sf::Event & event)
 {
