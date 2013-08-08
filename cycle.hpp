@@ -45,7 +45,8 @@ public:
 	bool check_collision(Cycle & cycle);
 	bool in(const sf::RectangleShape &);
 	void crash(float dist = 0.f);
-	void draw(sf::RenderWindow &, bool paused) const;
+	void draw(sf::RenderWindow&) const;
+	void draw_text(sf::RenderWindow&, bool paused) const;
 	void bind(const sf::Event & event);
 	void reset();
 	void set_ready(bool val);

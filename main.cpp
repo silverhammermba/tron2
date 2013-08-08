@@ -13,7 +13,6 @@
 // minor bugs:
 // tail moves after colliding with it
 // both players back up after a head-on collision
-// players get drawn on top of text sometimes
 //
 // features to add:
 // display cause-of-death count for each player
@@ -348,7 +347,9 @@ int main(int argc, char *argv[])
 		window.draw(bounds);
 
 		for (auto p : player)
-			p->draw(window, paused);
+			p->draw(window);
+		for (auto p : player)
+			p->draw_text(window, paused);
 
 		window.draw(fps);
 		window.draw(vol);

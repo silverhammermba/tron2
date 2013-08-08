@@ -250,11 +250,16 @@ void Cycle::backup()
 }
 
 // draw the player on the screen
-void Cycle::draw(sf::RenderWindow & window, bool paused) const
+void Cycle::draw(sf::RenderWindow& window) const
 {
 	for (auto rect : trail)
 		window.draw(*rect);
 	window.draw(edge);
+}
+
+// possibly draw text
+void Cycle::draw_text(sf::RenderWindow& window, bool paused) const
+{
 	if (paused)
 	{
 		window.draw(ready_text);
