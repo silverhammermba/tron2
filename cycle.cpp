@@ -135,7 +135,7 @@ void Cycle::turn(float dir)
 }
 
 // check for a collision between this and cycle
-bool Cycle::check_collision(Cycle & cycle)
+bool Cycle::check_collision(Cycle& cycle)
 {
 	if (crashed || &cycle == this) return false;
 	sf::FloatRect head = edge.getGlobalBounds();
@@ -148,7 +148,7 @@ bool Cycle::check_collision(Cycle & cycle)
 		if (perpendicular(dir, oth))
 		{
 			float prg1, prg2;
-			
+
 			if (dir == 0.f) // 1 right
 				prg1 = head.left - other.left;
 			else if (dir == 90.f) // 1 down
@@ -180,10 +180,9 @@ bool Cycle::check_collision(Cycle & cycle)
 		}
 	}
 	// normal collision
-	//for (auto segment : cycle.get_trail())
-	for (auto segment = cycle.get_trail().begin(); segment != cycle.get_trail().end(); segment++)
+	for (auto segment : cycle.get_trail())
 	{
-		sf::FloatRect rect = (*segment)->getGlobalBounds();
+		sf::FloatRect rect = segment->getGlobalBounds();
 		if (head.intersects(rect))
 		{
 			// determine distance to back up
@@ -253,9 +252,8 @@ void Cycle::backup()
 // draw the player on the screen
 void Cycle::draw(sf::RenderWindow & window, bool paused) const
 {
-	//for (auto rect : trail)
-	for (auto rect = trail.begin(); rect != trail.end(); rect++)
-		window.draw(**rect);
+	for (auto rect : trail)
+		window.draw(*rect);
 	window.draw(edge);
 	if (paused)
 	{
@@ -360,9 +358,8 @@ void Cycle::set_ready(bool val)
 void Cycle::set_color(const sf::Color & col)
 {
 	color = col;
-	//for (auto segment : trail)
-	for (auto segment = trail.begin(); segment != trail.end(); segment++)
-		(*segment)->setFillColor(color);
+	for (auto segment : trail)
+		segment->setFillColor(color);
 }
 
 // track deaths per-player
