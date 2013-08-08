@@ -34,17 +34,11 @@ int main(int argc, char *argv[])
 	sf::Clock fclock; // frame fclock
 	sf::Clock clock; // accumulative clock
 
-	sf::Text fps;
-	fps.setCharacterSize(12);
+	sf::Text fps {"", font, 12};
 	fps.setPosition(5.f, 5.f);
 	std::ostringstream fps_s;
 
-	sf::Text vol;
-	vol.setCharacterSize(12);
-	vol.setPosition(20.f, 50.f);
-
-	sf::Text winner;
-	winner.setCharacterSize(24);
+	sf::Text winner {"", font, 24};
 	std::ostringstream win_s;
 
 	bool paused {true};
@@ -349,7 +343,6 @@ int main(int argc, char *argv[])
 			p->draw_text(window, paused);
 
 		window.draw(fps);
-		window.draw(vol);
 		window.draw(winner);
 
 		window.display();
