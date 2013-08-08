@@ -295,30 +295,35 @@ int main(int argc, char *argv[])
 
 			win_s.str("");
 
-			int living = 0;
-			for(auto p : player)
-				if (!(p->crashed)) living++;
+			bool match_over = true;
+			Cycle* survivor = nullptr;
 
-			if (living == 0)
-			{
-				win_s << "DRAW";
-				winner.setColor(sf::Color(255, 255, 255));
-				paused = true;
-				for (auto p : player)
-					p->set_ready(false);
-			}
-			else if (living == 1)
-			{
-				for (auto p : player)
+			for(auto p : player)
+				if (!(p->crashed))
 				{
-					if (!(p->crashed))
+					if (survivor == nullptr)
+						survivor = p;
+					else
 					{
-						winner.setColor(p->color);
-						p->scored();
+						match_over = false;
 						break;
 					}
 				}
-				win_s << "WINNER!";
+
+			if (match_over)
+			{
+				if (survivor == nullptr)
+				{
+					win_s << "DRAW";
+					winner.setColor(sf::Color(255, 255, 255));
+				}
+				else
+				{
+					win_s << "WINNER!";
+					winner.setColor(survivor->color);
+					survivor->scored();
+				}
+
 				paused = true;
 				for (auto p : player)
 					p->set_ready(false);
