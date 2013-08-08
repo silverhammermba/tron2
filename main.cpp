@@ -182,7 +182,7 @@ int main(int argc, char *argv[])
 
 					// check if the controller is taken
 					bool taken = false;
-					
+
 					//for (auto p : player)
 					for (auto p = player.begin(); p != player.end(); p++)
 					{
