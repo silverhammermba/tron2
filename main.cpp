@@ -13,6 +13,7 @@
 // minor bugs:
 // tail moves after colliding with it
 // both players back up after a head-on collision
+// players get drawn on top of text sometimes
 //
 // features to add:
 // display cause-of-death count for each player
@@ -145,13 +146,12 @@ int main(int argc, char *argv[])
 							//cerr << "Adding new player\n";
 							// find color and starting position that aren't being used
 							sf::Color c;
-							//for (auto col : colors)
-							for (auto col = colors.begin(); col != colors.end(); col++)
+							for (auto& col : colors)
 							{
 								bool taken = false;
 								for (auto p : player)
 								{
-									if (p->color == *col)
+									if (p->color == col)
 									{
 										taken = true;
 										break;
@@ -159,7 +159,7 @@ int main(int argc, char *argv[])
 								}
 								if (!taken)
 								{
-									c = *col;
+									c = col;
 									break;
 								}
 							}
@@ -214,22 +214,21 @@ int main(int argc, char *argv[])
 					{
 						if (p->joystick == joystick)
 						{
-							int i;
-							int l = colors.size();
+							int color_index;
 							// find current color
-							for (i = 0; i < l; i++)
-							{
-								if (colors[i] == p->color) break;
-							}
-							int col = i;
-							i++;
+							for (color_index = 0; color_index < colors.size(); color_index++)
+								if (colors[color_index] == p->color)
+									break;
+
+							int current_color = color_index;
+							color_index++;
 							// find next available color
-							for (; i % l != col; i++)
+							for (; color_index % colors.size() != current_color; color_index++)
 							{
 								bool taken = false;
 								for (auto q : player)
 								{
-									if (q->color == colors[i % l])
+									if (q->color == colors[color_index % colors.size()])
 									{
 										taken = true;
 										break;
@@ -237,7 +236,7 @@ int main(int argc, char *argv[])
 								}
 								if (!taken)
 								{
-									p->set_color(colors[i % l]);
+									p->set_color(colors[color_index % colors.size()]);
 									break;
 								}
 							}

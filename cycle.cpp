@@ -360,6 +360,8 @@ void Cycle::set_color(const sf::Color & col)
 	color = col;
 	for (auto segment : trail)
 		segment->setFillColor(color);
+	if (ready)
+		ready_text.setColor(color);
 }
 
 // track deaths per-player
