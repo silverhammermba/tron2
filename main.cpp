@@ -24,11 +24,11 @@ using std::endl;
 
 sf::Font font;
 
-int get_joystick(sf::Event & event);
-bool input_is(sf::Event & event, int keycode, int joybutton);
+int get_joystick(sf::Event& event);
+bool input_is(sf::Event& event, int keycode, int joybutton);
 void set_up(sf::RenderWindow& window, sf::View& view, sf::Text& winner, std::list<Cycle*>& player);
 
-int main(int argc, char *argv[])
+int main(int argc, char* argv[])
 {
 	font.loadFromFile("font.ttf");
 	sf::Clock fclock; // frame fclock
@@ -59,7 +59,7 @@ int main(int argc, char *argv[])
 	bounds.setPosition(5.f, 5.f);
 	bounds.setFillColor(sf::Color(30, 30, 30));
 
-	std::list<Cycle *> player;
+	std::list<Cycle*> player;
 
 	// TODO dynamically assign these?
 	std::array<v2f, 4> starts
@@ -351,7 +351,7 @@ int main(int argc, char *argv[])
 	return EXIT_SUCCESS;
 }
 
-int get_joystick(sf::Event & event)
+int get_joystick(sf::Event& event)
 {
 	if (event.type == sf::Event::KeyPressed)
 		return -1;

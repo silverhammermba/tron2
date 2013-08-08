@@ -5,16 +5,11 @@
 #include "cycle.hpp"
 #include "helpers.hpp"
 
-// TODO debugging
-#include <iostream>
-using std::cerr;
-using std::endl;
-
 const float Cycle::WIDTH = 8.5f;
 const float Cycle::SPEED = 250.f;
 const float Cycle::DECAY = Cycle::SPEED / 2.f;
 
-Cycle::Cycle(const v2f & pos, const float dir, const sf::Color & clr, sf::Font& font, int j) :
+Cycle::Cycle(const v2f& pos, const float dir, const sf::Color& clr, sf::Font& font, int j) :
 	start(pos), color(clr), edge(v2f(1.f, Cycle::WIDTH)), ready_text("READY", font, 16), score_text("", font, 16)
 {
 	pending = -1.f; // store turns
@@ -127,8 +122,7 @@ void Cycle::turn(float dir)
 				// clear any stored turn
 				pending = -1.f;
 			}
-			// store the turn for later
-			else
+			else // store the turn for later
 				pending = dir;
 		}
 	}
@@ -204,7 +198,7 @@ bool Cycle::check_collision(Cycle& cycle)
 }
 
 // check if the player is in bounds
-bool Cycle::in(const sf::RectangleShape & bounds)
+bool Cycle::in(const sf::RectangleShape& bounds)
 {
 	sf::FloatRect head = edge.getGlobalBounds();
 	sf::FloatRect bound = bounds.getGlobalBounds();
@@ -268,7 +262,7 @@ void Cycle::draw_text(sf::RenderWindow& window, bool paused) const
 }
 
 // respond to an event
-void Cycle::bind(const sf::Event & event)
+void Cycle::bind(const sf::Event& event)
 {
 	if (joystick >= 0)
 	{
@@ -338,7 +332,7 @@ void Cycle::reset()
 }
 
 // add a new segment to the front of the snake
-void Cycle::new_segment(const v2f & pos, float dir)
+void Cycle::new_segment(const v2f& pos, float dir)
 {
 	trail.push_front(new sf::RectangleShape(v2f(Cycle::WIDTH, Cycle::WIDTH)));
 	trail.front()->setPosition(pos);
@@ -360,7 +354,7 @@ void Cycle::set_ready(bool val)
 }
 
 // change trail color
-void Cycle::set_color(const sf::Color & col)
+void Cycle::set_color(const sf::Color& col)
 {
 	color = col;
 	for (auto segment : trail)
@@ -371,7 +365,7 @@ void Cycle::set_color(const sf::Color & col)
 
 // track deaths per-player
 // TODO display somehow
-void Cycle::add_death(Cycle *cycle)
+void Cycle::add_death(Cycle* cycle)
 {
 	if (deaths.count(cycle))
 		deaths[cycle]++;
@@ -389,7 +383,7 @@ void Cycle::scored()
 }
 
 // update position of ready/score text using center of view
-void Cycle::set_text_pos(const v2f & center)
+void Cycle::set_text_pos(const v2f& center)
 {
 	v2f new_pos {(start.x + center.x) / 2.f, (start.y + center.y) / 2.f};
 	ready_text.setPosition(new_pos);
