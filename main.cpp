@@ -3,7 +3,6 @@
 #include <list>
 #include <sstream>
 #include <cmath>
-//#include <SFML/Audio/Music.hpp>
 #include <SFML/Graphics.hpp>
 #include <SFML/Window.hpp>
 #include "cycle.hpp"
@@ -25,10 +24,9 @@ using std::endl;
 
 sf::Font font;
 
-//void set_volume(Cycle *p1, Cycle *p2, sf::Music *track);
 int get_joystick(sf::Event & event);
 bool input_is(sf::Event & event, int keycode, int joybutton);
-void set_up(sf::RenderWindow & window, sf::View & view, sf::Text & winner, std::list<Cycle *> & player);
+void set_up(sf::RenderWindow& window, sf::View& view, sf::Text& winner, std::list<Cycle*>& player);
 
 int main(int argc, char *argv[])
 {
@@ -111,12 +109,12 @@ int main(int argc, char *argv[])
 			if (event.type == sf::Event::Closed)
 				window.close();
 			else if (event.type == sf::Event::Resized)
-			{
 				set_up(window, view, winner, player);
-			}
+
 			// quit
 			if (event.type == sf::Event::KeyReleased && event.key.code == sf::Keyboard::Escape)
 				window.close();
+
 			if (paused)
 			{
 				// add players
@@ -131,60 +129,55 @@ int main(int argc, char *argv[])
 					{
 						if (p->joystick == joystick)
 						{
-							//cerr << "Player taken, readying\n";
 							p->set_ready(true);
 							taken = true;
 							break;
 						}
 					}
 					// if we can accomodate more players
-					if (player.size() < 4)
+					if (!taken && player.size() < 4)
 					{
-						if (!taken)
+						// find color and starting position that aren't being used
+						sf::Color c;
+						for (auto& col : colors)
 						{
-							//cerr << "Adding new player\n";
-							// find color and starting position that aren't being used
-							sf::Color c;
-							for (auto& col : colors)
+							bool taken = false;
+							for (auto p : player)
 							{
-								bool taken = false;
-								for (auto p : player)
+								if (p->color == col)
 								{
-									if (p->color == col)
-									{
-										taken = true;
-										break;
-									}
-								}
-								if (!taken)
-								{
-									c = col;
+									taken = true;
 									break;
 								}
 							}
-							v2f s;
-							int i = 0; // TODO HACKY AS BALLS
-							for (auto strt : starts)
+							if (!taken)
 							{
-								bool taken = false;
-								for (auto p : player)
-								{
-									if (p->start == strt)
-									{
-										taken = true;
-										break;
-									}
-								}
-								if (!taken)
-								{
-									s = strt;
-									break;
-								}
-								i++;
+								c = col;
+								break;
 							}
-							player.push_back(new Cycle(s, startds[i], c, font, joystick));
-							player.back()->set_text_pos(view.getCenter());
 						}
+						v2f s;
+						int i = 0; // TODO HACKY AS BALLS
+						for (auto strt : starts)
+						{
+							bool taken = false;
+							for (auto p : player)
+							{
+								if (p->start == strt)
+								{
+									taken = true;
+									break;
+								}
+							}
+							if (!taken)
+							{
+								s = strt;
+								break;
+							}
+							i++;
+						}
+						player.push_back(new Cycle(s, startds[i], c, font, joystick));
+						player.back()->set_text_pos(view.getCenter());
 					}
 				}
 				// remove/unready players
@@ -322,7 +315,6 @@ int main(int argc, char *argv[])
 					{
 						winner.setColor(p->color);
 						p->scored();
-						//p->crashed = true;
 						break;
 					}
 				}
@@ -369,12 +361,12 @@ int get_joystick(sf::Event & event)
 		return event.joystickButton.joystickId;
 }
 
-bool input_is (sf::Event & event, int keycode, int joybutton)
+bool input_is(sf::Event& event, int keycode, int joybutton)
 {
 	return (event.type == sf::Event::KeyPressed && event.key.code == keycode) || (event.type == sf::Event::JoystickButtonPressed && event.joystickButton.button == joybutton);
 }
 
-void set_up (sf::RenderWindow & window, sf::View & view, sf::Text & winner, std::list<Cycle*> & player)
+void set_up(sf::RenderWindow& window, sf::View& view, sf::Text& winner, std::list<Cycle*>& player)
 {
 	sf::Vector2u size = window.getSize();
 	float prop = float (size.x) / size.y;
