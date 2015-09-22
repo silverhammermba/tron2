@@ -25,10 +25,10 @@ using std::endl;
 sf::Font font;
 
 int get_joystick(sf::Event& event);
-bool input_is(sf::Event& event, int keycode, int joybutton);
+bool input_is(sf::Event& event, sf::Keyboard::Key keycode, unsigned int joybutton);
 void set_up(sf::RenderWindow& window, sf::View& view, sf::Text& winner, std::list<Cycle*>& player);
 
-int main(int argc, char* argv[])
+int main()
 {
 	font.loadFromFile("font.ttf");
 	sf::Clock fclock; // frame fclock
@@ -200,13 +200,13 @@ int main(int argc, char* argv[])
 					{
 						if (p->joystick == joystick)
 						{
-							int color_index;
+							unsigned int color_index;
 							// find current color
 							for (color_index = 0; color_index < colors.size(); color_index++)
 								if (colors[color_index] == p->color)
 									break;
 
-							int current_color = color_index;
+							unsigned int current_color = color_index;
 							color_index++;
 							// find next available color
 							for (; color_index % colors.size() != current_color; color_index++)
@@ -353,13 +353,12 @@ int main(int argc, char* argv[])
 
 int get_joystick(sf::Event& event)
 {
-	if (event.type == sf::Event::KeyPressed)
-		return -1;
-	else if (event.type == sf::Event::JoystickButtonPressed)
+	if (event.type == sf::Event::JoystickButtonPressed)
 		return event.joystickButton.joystickId;
+	return -1;
 }
 
-bool input_is(sf::Event& event, int keycode, int joybutton)
+bool input_is(sf::Event& event, sf::Keyboard::Key keycode, unsigned int joybutton)
 {
 	return (event.type == sf::Event::KeyPressed && event.key.code == keycode) || (event.type == sf::Event::JoystickButtonPressed && event.joystickButton.button == joybutton);
 }
@@ -367,7 +366,6 @@ bool input_is(sf::Event& event, int keycode, int joybutton)
 void set_up(sf::RenderWindow& window, sf::View& view, sf::Text& winner, std::list<Cycle*>& player)
 {
 	sf::Vector2u size = window.getSize();
-	float prop = float (size.x) / size.y;
 	if (size.x * 3 < size.y * 4)
 	{
 		view.setSize(v2f(800, (800.f * size.y) / size.x));

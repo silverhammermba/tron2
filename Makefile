@@ -1,12 +1,20 @@
-CXXFLAGS:=-std=c++11
-TARGET:=tron2
+BIN=tron2
+LDLIBS=-lsfml-graphics -lsfml-window -lsfml-system
 
-tron2: main.o cycle.o helpers.o
-	g++ -o $(TARGET) $^ -lsfml-graphics -lsfml-window -lsfml-system
+SRC=$(wildcard *.cpp)
+OBJS=$(SRC:.cpp=.o)
+DEPS=$(addprefix .,$(SRC:.cpp=.d))
+CXXFLAGS:=-std=c++11 -Wall -Wextra -Wfatal-errors
+CC=$(CXX)
 
-cycle.o: cycle.hpp
+$(BIN): $(OBJS)
 
-helpers.o: helpers.hpp
+.%.d: %.cpp
+	$(CXX) $(CXXFLAGS) -MM $^ > $@
+
+-include $(DEPS)
+
+.PHONY: clean
 
 clean:
-	rm -f *~ *.o *.out $(TARGET)
+	rm -f $(BIN) $(OBJS)
