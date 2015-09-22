@@ -10,7 +10,7 @@ const float Cycle::SPEED = 250.f;
 const float Cycle::DECAY = Cycle::SPEED / 2.f;
 
 Cycle::Cycle(const v2f& pos, const float dir, const sf::Color& clr, sf::Font& font, int j) :
-	start(pos), color(clr), edge(v2f(1.f, Cycle::WIDTH)), ready_text("READY", font, 16), score_text("", font, 16)
+	edge(v2f(1.f, Cycle::WIDTH)), ready_text("READY", font, 16), score_text("", font, 16), start(pos), color(clr)
 {
 	pending = -1.f; // store turns
 	backitup = 0.f; // distance to back up after collision
@@ -44,7 +44,7 @@ void Cycle::move_forward(float time)
 	float dir = trail.front()->getRotation();
 	// check for self-collision
 	// it's not possible to collide with the first three segments
-	for (int i = 3; i < trail.size(); i++)
+	for (unsigned int i = 3; i < trail.size(); i++)
 	{
 		sf::FloatRect rect = trail[i]->getGlobalBounds();
 		if (head.intersects(rect))
@@ -266,7 +266,7 @@ void Cycle::bind(const sf::Event& event)
 {
 	if (joystick >= 0)
 	{
-		if (event.type == sf::Event::JoystickButtonPressed && event.joystickButton.joystickId == joystick)
+		if (event.type == sf::Event::JoystickButtonPressed && event.joystickButton.joystickId == (unsigned int)joystick)
 		{
 			switch (event.joystickButton.button)
 			{
@@ -313,6 +313,9 @@ void Cycle::bind(const sf::Event& event)
 				break;
 			case sf::Keyboard::BackSpace:
 				set_ready(false);
+				break;
+			default:
+				// ignore it
 				break;
 		}
 	}
